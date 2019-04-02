@@ -1,0 +1,34 @@
+<ion-header>
+  <ion-navbar color="dark">
+    <ion-title>Questionários Concluídos</ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content>
+  <div *ngIf="questionariosConcluidos">
+    <div *ngIf="questionariosConcluidos.questionarios == 0" style="text-align: center">
+      <h3 class="texto">Nenhum Questionário Concluído</h3>
+    </div>
+    <ion-card (click)="opcoesQuestionario(questionario)" *ngFor="let questionario of questionariosConcluidos.questionarios">
+      <ion-item>
+        <h2>{{ questionario.nome }}</h2>
+        <p>{{ questionario.atualizado_em | date:'h:mm:ss a, d/M/yy' }}</p>
+        <ion-avatar item-end>
+          <img *ngIf="questionario.questionario_sincronizado" src="assets/imgs/outras/success.svg">
+          <img *ngIf="!questionario.questionario_sincronizado" src="assets/imgs/outras/icon_sync.png">
+        </ion-avatar>
+      </ion-item>
+    </ion-card>
+  </div>
+  <div *ngIf="!questionariosConcluidos" style="text-align: center">
+    <h3 class="texto">Nenhum Questionário Concluído</h3>
+  </div>
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar style="text-align: center">
+    <button (click)="sincronizar()" class="botao" ion-button color="dark">
+      Sincronizar Dados
+    </button>
+  </ion-toolbar>
+</ion-footer>

@@ -1,0 +1,26 @@
+<ion-header>
+  <ion-navbar color="primary">
+    <ion-title>Pendências</ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content padding>
+  <div *ngIf="questionarioAtual">
+    <h3>{{ questionarioAtual.nome }}</h3>
+    <br>
+    <ion-list *ngFor="let pergunta of questionarioAtual.perguntas">
+      <ion-item [ngClass]="{'respondido':pergunta.resposta}" *ngIf="pergunta.pergunta_liberada" (click)="selecionarPergunta(pergunta)">
+        {{ pergunta.texto }}
+        <ion-icon *ngIf="pergunta.resposta" name="md-checkmark" item-end></ion-icon>
+      </ion-item>
+    </ion-list>
+  </div>
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar style="text-align: center">
+    <button (click)="continuar()" class="botao" ion-button color="primary">
+      Continuar
+    </button>
+  </ion-toolbar>
+</ion-footer>

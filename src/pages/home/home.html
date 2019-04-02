@@ -1,0 +1,38 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Questionários Iniciados</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div *ngIf="questionariosIniciados">
+    <div *ngIf="questionariosIniciados.questionarios == 0" style="text-align: center">
+      <h3 class="texto">Nenhum Questionário Iniciado</h3>
+    </div>
+    <ion-card (click)="$opcoesQuestionario(questionario)" *ngFor="let questionario of questionariosIniciados.questionarios">
+      <ion-card-content>
+        <h2 class="card-title">
+          {{ questionario.nome }}
+        </h2>
+        <hr>
+        <p>
+          Última atualização: {{ questionario.atualizado_em | date:'h:mm:ss a, d/M/yy' }}
+        </p>
+        <p>
+          Iniciado em: {{ questionario.iniciado_em | date:'h:mm:ss a, d/M/yy' }}
+        </p>
+      </ion-card-content>
+    </ion-card>
+  </div>
+  <div *ngIf="!questionariosIniciados" style="text-align: center">
+    <h3 class="texto">Nenhum Questionário Iniciado</h3>
+  </div>
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar style="text-align: center">
+    <button (click)="$novaResolucaoQuestionario()" class="botao" ion-button color="primary">
+      Iniciar Novo Questionário
+    </button>
+  </ion-toolbar>
+</ion-footer>

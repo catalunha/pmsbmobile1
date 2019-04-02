@@ -1,0 +1,7 @@
+{
+  "name": "pmsb",
+  "integrations": {
+    "cordova": {}
+  },
+  "type": "ionic-angular"
+}

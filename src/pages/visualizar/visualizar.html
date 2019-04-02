@@ -1,0 +1,107 @@
+<ion-header>
+  <ion-navbar color="primary">
+    <ion-title>Visualizando Respostas</ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content class="fundo">
+  <div *ngIf="questionarioAtual">
+    <h3 class="centro">{{ questionarioAtual.nome }}</h3>
+    <br>
+    <hr>
+    <br>
+    <ion-list *ngFor="let perguntaAtual of questionarioAtual.perguntas; let i = index">
+      <div *ngIf="questionarioAtual.perguntas.length == 0">
+        <h5>Questionário sem perguntas.</h5>
+      </div>
+      <div *ngIf="perguntaAtual.resposta" [ngClass]="[i%2==0 ? 'tipoB':'tipoA']">
+
+        <div *ngIf="perguntaAtual.tipo == 0">
+          <!-- ==================================================================== -->
+          <!-- =====================    Escolha Única    ========================== -->
+          <div *ngIf="!perguntaAtual.multipla">
+            <h5 class="centro">{{ perguntaAtual.texto }}</h5>
+            <b>
+              <p>Resposta:</p>
+            </b>
+            <p>{{ perguntaAtual.resposta.possivel_escolha_id.texto }}</p>
+          </div>
+
+          <!-- ==================================================================== -->
+          <!-- ===================    Multipla Escolha    ========================= -->
+          <div *ngIf="perguntaAtual.multipla">
+            <h5 class="centro">{{ perguntaAtual.texto }}</h5>
+            <b>
+              <p>Resposta:</p>
+            </b>
+            <ion-list [ngClass]="[i%2==0 ? 'tipoA':'tipoB']">
+              <ion-item *ngFor="let escolha of perguntaAtual.resposta.possiveis_escolhas_id">
+                <p style="color: black"> {{ escolha.texto }} </p>
+              </ion-item>
+            </ion-list>
+          </div>
+        </div>
+
+        <!-- ==================================================================== -->
+        <!-- ===========================    Texto    ============================ -->
+        <div *ngIf="perguntaAtual.tipo == 1">
+          <h5 class="centro">{{ perguntaAtual.texto }}</h5>
+          <b>
+            <p>Resposta:</p>
+          </b>
+          <p>{{ perguntaAtual.resposta.texto }}</p>
+        </div>
+
+        <!-- ==================================================================== -->
+        <!-- =====================  Selecionar Arquivo ========================== -->
+        <div *ngIf="perguntaAtual.tipo == 2">
+          <h5 class="centro">{{ perguntaAtual.texto }}</h5>
+          <b>
+            <p>Resposta:</p>
+          </b>
+          <p> {{ perguntaAtual.resposta.fileName }} </p>
+        </div>
+
+        <!-- ==================================================================== -->
+        <!-- =====================  Selecionar Imagem  ========================== -->
+        <div *ngIf="perguntaAtual.tipo == 3">
+          <h5 class="centro">{{ perguntaAtual.texto }}</h5>
+          <b>
+            <p>Resposta:</p>
+          </b>
+          <img [src]="perguntaAtual.resposta.imagem">
+        </div>
+
+        <!-- ==================================================================== -->
+        <!-- =====================   Coordenada GPS    ========================== -->
+        <div *ngIf="perguntaAtual.tipo == 4">
+          <h5 class="centro">{{ perguntaAtual.texto }}</h5>
+          <p>Coordenada Salva:</p>
+            <p>Latitude: {{ perguntaAtual.resposta.latitudeResposta }} </p>
+            <p>Longitude: {{ perguntaAtual.resposta.longitudeResposta }} </p>
+        </div>
+
+        <!-- ==================================================================== -->
+        <!-- =====================  Selecionar Valor   ========================== -->
+        <div *ngIf="perguntaAtual.tipo == 5">
+          <h5 class="centro">{{ perguntaAtual.texto }}</h5>
+          <p>Valor Informado: {{ perguntaAtual.resposta.numero }}</p>
+        </div>
+
+        <div>
+          <b>
+            <p class="centro">Localização no Momento da Resposta</p>
+          </b>
+          <div *ngIf="perguntaAtual.resposta.latitude == ''">
+            <p>Localização não encontrada.</p>
+          </div>
+          <div *ngIf="perguntaAtual.resposta.latitude != ''">
+            <p>Latitude: {{ perguntaAtual.resposta.latitude }} </p>
+            <p>Longitude: {{ perguntaAtual.resposta.longitude }} </p>
+          </div>
+        </div>
+
+      </div>
+    </ion-list>
+  </div>
+</ion-content>

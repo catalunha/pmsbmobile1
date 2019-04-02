@@ -1,0 +1,177 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Preenchendo Questionário</ion-title>
+    <ion-buttons start>
+      <button (click)="voltar()" ion-button icon-only color="royal">
+        Voltar
+      </button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+
+<ion-content padding>
+
+  <div *ngIf="questionarioAtual">
+    <h4 style="text-align: center">{{ questionarioAtual.nome }}</h4>
+    <hr>
+    <div *ngIf="questionarioAtual.perguntas.length == 0" style="text-align: center">
+      <br>
+      <h5>Questionário sem perguntas</h5>
+    </div>
+    <div *ngIf="!perguntaAtual" style="text-align: center">
+      <br>
+      <h5>Parabéns! Este questionário foi concluído.</h5>
+    </div>
+
+    <div *ngIf="perguntaAtual">
+      <!-- ==================================================================== -->
+      <!-- =====================    Escolha Única    ========================== -->
+      <div *ngIf="escolhaUnicaResposta">
+        <br>
+        <h5>{{ perguntaAtual.texto }}</h5>
+        <p>Tipo: Escolha Única</p>
+        <ion-list radio-group [(ngModel)]="escolhaUnica.possivel_escolha_id">
+          <ion-item *ngFor="let possivel_escolha of perguntaAtual.possiveis_escolhas">
+            <ion-label text-wrap>{{ possivel_escolha.texto }}</ion-label>
+            <ion-radio value="{{ possivel_escolha.id }}"></ion-radio>
+          </ion-item>
+        </ion-list>
+        <button (click)="respostaEscolhaUnica(perguntaAtual)" ion-button full round>Salvar</button>
+      </div>
+
+      <!-- ==================================================================== -->
+      <!-- ===================    Multipla Escolha    ========================= -->
+      <div *ngIf="multiplaEscolhaResposta">
+        <br>
+        <h5>{{ perguntaAtual.texto }}</h5>
+        <p>Tipo: Multipla Escolha</p>
+
+        <ion-list>
+          <ion-item *ngFor="let possivel_escolha of perguntaAtual.possiveis_escolhas">
+            <ion-label text-wrap> {{ possivel_escolha.texto }} </ion-label>
+            <ion-checkbox [(ngModel)]="possivel_escolha.marcada"></ion-checkbox>
+          </ion-item>
+        </ion-list>
+
+        <button (click)="respostaMultiplaEscolha(perguntaAtual)" ion-button full round>Salvar</button>
+      </div>
+
+      <!-- ==================================================================== -->
+      <!-- ===========================    Texto    ============================ -->
+      <div *ngIf="entradaTextoResposta">
+        <br>
+        <h5>{{ perguntaAtual.texto }}</h5>
+        <p>Tipo: Resposta de Texto</p>
+        <ion-list>
+          <ion-item>
+            <ion-label floating>Resposta</ion-label>
+            <ion-textarea [(ngModel)]="textoResposta.texto" [ngModelOptions]="{standalone: true}" type="text"></ion-textarea>
+          </ion-item>
+        </ion-list>
+
+        <button (click)="respostaTexto(perguntaAtual)" ion-button full round>Salvar Texto</button>
+      </div>
+
+      <!-- ==================================================================== -->
+      <!-- =====================  Selecionar Arquivo ========================== -->
+      <div *ngIf="selecionarArquivoResposta">
+        <br>
+        <h5>{{ perguntaAtual.texto }}</h5>
+        <p>Tipo: Enviar Arquivo</p>
+        <div *ngIf="!perguntaAtual.resposta">
+          <ion-list>
+            <button (click)="respostaArquivo(perguntaAtual)" color="dark" ion-button full round>Selecionar Arquivo</button>
+          </ion-list>
+        </div>
+        <div *ngIf="perguntaAtual.resposta">
+          <!-- <p> {{ perguntaAtual.resposta.file }} </p> -->
+          <ion-list>
+            <button (click)="respostaArquivo(perguntaAtual)" ion-button full round>Alterar Arquivo Selecionado</button>
+          </ion-list>
+        </div>
+        <button *ngIf="!perguntaAtual.resposta" (click)="salvarPular()" ion-button full round disabled>Salvar Arquivo</button>
+        <button *ngIf="perguntaAtual.resposta" (click)="salvarPular()" ion-button full round>Salvar Arquivo</button>
+      </div>
+
+      <!-- ==================================================================== -->
+      <!-- =====================  Selecionar Imagem  ========================== -->
+      <div *ngIf="selecionarImagemResposta">
+        <br>
+        <h5>{{ perguntaAtual.texto }}</h5>
+        <p>Tipo: Enviar Imagem</p>
+        <div *ngIf="!perguntaAtual.resposta">
+          <ion-list>
+            <button (click)="respostaImagem(perguntaAtual)" ion-button full round>Selecionar Imagem</button>
+          </ion-list>
+        </div>
+        <div *ngIf="perguntaAtual.resposta">
+          <ion-list>
+            <button (click)="respostaImagem(perguntaAtual)" ion-button full round>Trocar Imagem</button>
+          </ion-list>
+          <img [src]="perguntaAtual.resposta.imagem">
+          <button (click)="salvarImagem(perguntaAtual)" ion-button full round>Salvar Imagem</button>
+        </div>
+
+      </div>
+
+      <!-- ==================================================================== -->
+      <!-- =====================  Selecionar Valor   ========================== -->
+      <div *ngIf="numeroResposta">
+        <br>
+        <h5>{{ perguntaAtual.texto }}</h5>
+        <!-- <p>Tipo: Enviar Valor</p> -->
+
+        <p>Unidade de Medida: <a>{{ perguntaAtual.unidade_medida.nome }}</a></p>
+        <p>O valor deve ser maior que: <a>{{ perguntaAtual.maior_que }} {{ perguntaAtual.unidade_medida.sigla }}</a></p>
+        <p>O valor deve ser menor que: <a>{{ perguntaAtual.menor_que }} {{ perguntaAtual.unidade_medida.sigla }}</a></p>
+
+        <ion-item>
+          <ion-label>Valor:</ion-label>
+          <ion-input type="number" [(ngModel)]="numero.numero"></ion-input>
+        </ion-item>
+        <br>
+        <button (click)="respostaNumero(perguntaAtual)" ion-button full round>Salvar Valor</button>
+      </div>
+
+      <!-- ==================================================================== -->
+      <!-- ======================  Coordenada GPS   =========================== -->
+      <div *ngIf="coordenadaResposta">
+        <div *ngIf="!perguntaAtual.resposta">
+          <br>
+          <button *ngIf="coordenadas.latitude == ''" disabled ion-button full>Salvar Coordenada</button>
+          <button *ngIf="coordenadas.latitude != ''" (click)="respostaCoordenada(perguntaAtual)" ion-button full>Salvar
+            Coordenada Atual</button>
+        </div>
+        <div *ngIf="perguntaAtual.resposta">
+          <p>Coordenadas Salvas:</p>
+          <p>Latitude: <a>{{ perguntaAtual.resposta.latitudeResposta }}</a></p>
+          <p>Longitude: <a>{{ perguntaAtual.resposta.longitudeResposta }}</a></p>
+          <button *ngIf="coordenadas.latitude == ''" disabled ion-button full>Atualizar Coordenada</button>
+          <button *ngIf="coordenadas.latitude != ''" (click)="respostaCoordenada(perguntaAtual)" ion-button full round>Atualizar
+            com nova
+            Coordenada</button>
+        </div>
+      </div>
+    </div>
+    <br>
+    <hr>
+    <div *ngIf="perguntaAtual">
+      <div *ngIf="coordenadas.latitude == ''">
+        <p class="coordenadas">Buscando Localização...</p>
+      </div>
+      <div *ngIf="coordenadas.latitude != ''">
+        <p class="coordenadas">Latitude: {{ coordenadas.latitude }} </p>
+        <p class="coordenadas">Longitude: {{ coordenadas.longitude }} </p>
+      </div>
+    </div>
+  </div>
+</ion-content>
+
+<ion-footer *ngIf="perguntaAtual">
+  <ion-toolbar>
+    <button (click)="pular()" ion-button clear icon-right color="dark">
+      Pular Esta Pergunta
+    </button>
+  </ion-toolbar>
+</ion-footer>

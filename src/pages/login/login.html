@@ -1,0 +1,29 @@
+<ion-content padding class="transparent-header" [ngStyle]="{'background-color':'#008578'}">
+  <div padding>
+    <ion-row>
+      <ion-col style="text-align:center;">
+        <img style="width: 150px;" class="logo" src="assets/imgs/logo/logo1.png" />
+        <h1 style="color:white" >PMSB</h1>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col>
+        <ion-list inset>
+          <ion-item>
+            <ion-label floating>Usuário</ion-label>
+            <ion-input [(ngModel)]="model.username" type="text"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-label floating>Senha</ion-label>
+            <ion-input [(ngModel)]="model.password" type="password"></ion-input>
+          </ion-item>
+        </ion-list>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col>
+        <button ion-button class="login-button" (click)="login()">Entrar</button>
+      </ion-col>
+    </ion-row>
+  </div>
+</ion-content>
