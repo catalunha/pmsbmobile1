@@ -43,8 +43,12 @@ export class LoginPage {
       }
     ).catch(error => console.log(error));
     this.versionNumber = Number(this.versionNumber);
-    this.lastVersion = Number(this.versaoApp_service.getVersaoApp);
-    console.log(this.versaoApp_service.getVersaoApp);
+    this.versaoApp_service.getVersaoApp().subscribe(
+      resposta => {
+        this.lastVersion = Number(resposta);
+    });
+    
+    console.log(this.lastVersion);
     if (this.versionNumber<this.lastVersion){
         this.ferramenta.showAlert("Aplicativo Desatualizado", "O aplicativo não possui a versão minima para uso, por favor atualize seu aplicativo");
         this.blockApp = true;

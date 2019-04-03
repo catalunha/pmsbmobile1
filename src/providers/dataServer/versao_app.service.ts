@@ -17,6 +17,6 @@ export class VersaoAppService extends CoreService{
     }
 
     public getVersaoApp(params: any): Observable<VersaoApp[]>{
-      return super.all(params);
+      return super.get(params);
     }
 }
