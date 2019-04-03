@@ -38,23 +38,23 @@ export class LoginPage {
 
   public appVersionVerification() {
     this.appVersion.getVersionNumber().then(
-      versao => {
-        this.versionNumber = versao;
-      }
-    ).catch(error => console.log(error));
-    this.versionNumber = Number(this.versionNumber);
-    this.versaoApp_service.getVersaoApp().subscribe(
-      resposta => {
-        this.lastVersion = Number(resposta);
-    });
-    
-    console.log(this.lastVersion);
-    if (this.versionNumber<this.lastVersion){
-        this.ferramenta.showAlert("Aplicativo Desatualizado", "O aplicativo não possui a versão minima para uso, por favor atualize seu aplicativo");
-        this.blockApp = true;
-    }else{
-      this.ferramenta.showAlert("Aplicativo Atualizado", "Aplicativo atualizado!");
+    versao => {
+      this.versionNumber = versao;
+      this.versaoApp_service.getVersaoApp({}).subscribe(
+        resposta => {
+          this.lastVersion = resposta;
+          if (this.versionNumber!==this.lastVersion){
+            this.ferramenta.showAlert("Aplicativo Desatualizado", "O aplicativo não possui a versão minima para uso, por favor atualize seu aplicativo");
+            this.blockApp = true;
+          }else{
+            this.ferramenta.showAlert("Aplicativo Atualizado", "Mantenha sempre seu Aplicativo atualizado!");
+          }
+      },
+      error => {
+        this.ferramenta.showAlert("Falha na Verificação!", "Não foi possivel verificar a versão do seu aplicativo, por favor atualize!");
+      });
     }
+    ).catch(error => console.log(error));
   }
 
   public login() {
