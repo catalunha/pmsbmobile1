@@ -13,7 +13,7 @@ import { VersaoApp } from '../../models/versaoApp.model';
 export class VersaoAppService extends CoreService{
 
     constructor(private http:Http) {
-      super(http, '/api/questionarios/setores_censitarios');
+      super(http, '/api/versao');
     }
 
     public getVersaoApp(params: any): Observable<VersaoApp[]>{

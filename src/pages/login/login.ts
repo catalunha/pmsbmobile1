@@ -32,7 +32,7 @@ export class LoginPage {
     private authentication_local: AuthenticationServiceLocal,
     private ferramenta: FerramentasProvider,
     private appVersion: AppVersion,
-    private versao_App_Service: VersaoAppService) {
+    private versaoApp_service: VersaoAppService) {
       this.appVersionVerification()
   }
 
@@ -43,12 +43,8 @@ export class LoginPage {
       }
     ).catch(error => console.log(error));
     this.versionNumber = Number(this.versionNumber);
-    this.lastVersion = Number(this.versao_App_Service.getVersaoApp);
-    this.minVersion = Number();
+    this.lastVersion = Number(this.versaoApp_service.getVersaoApp());
     if (this.versionNumber<this.lastVersion){
-      if(this.versionNumber>=this.minVersion){
-        this.ferramenta.showAlert("Aplicativo Desatualizado", "O aplicativo não está compativel com a última versão lançada, por favor atualize seu aplicativo.");
-      }else{
         this.ferramenta.showAlert("Aplicativo Desatualizado", "O aplicativo não possui a versão minima para uso, por favor atualize seu aplicativo");
         this.blockApp = true;
       }
