@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
 import { IonicPage, NavController, NavParams, LoadingController } from 'ionic-angular';
 import { TabsPage } from '../tabs/tabs';
-
+import { AppVersion } from '@ionic-native/app-version';
 import { AuthenticationService } from './../../providers/dataServer/authentication.service';
 import { FerramentasProvider } from './../../providers/ferramentas/ferramentas';
 import { AuthenticationServiceLocal } from './../../providers/dataLocal/authentication.service';
 import { UsuarioService } from './../../providers/dataServer/usuario.service';
+import { VersaoAppService } from '../../providers/dataServer/versao_app.service';
 
 @IonicPage()
 @Component({
@@ -14,18 +15,46 @@ import { UsuarioService } from './../../providers/dataServer/usuario.service';
   providers: [AuthenticationService, AuthenticationServiceLocal, UsuarioService]
 })
 export class LoginPage {
-
+  versionNumber;
+  lastVersion;
+  minVersion;
+  blockApp : boolean = false;
   public model: any = {
     username: "",
     password: ""
   };
+
 
   constructor(public navCtrl: NavController,
     public navParams: NavParams,
     public loadingCtrl: LoadingController,
     private authentication_service: AuthenticationService,
     private authentication_local: AuthenticationServiceLocal,
-    private ferramenta: FerramentasProvider) {
+    private ferramenta: FerramentasProvider,
+    private appVersion: AppVersion,
+    private versao_App_Service: VersaoAppService) {
+      this.appVersionVerification()
+  }
+
+  public appVersionVerification() {
+    this.appVersion.getVersionNumber().then(
+      versao => {
+        this.versionNumber = versao;
+      }
+    ).catch(error => console.log(error));
+    this.versionNumber = Number(this.versionNumber);
+    this.lastVersion = Number(this.versao_App_Service.getVersaoApp);
+    this.minVersion = Number();
+    if (this.versionNumber<this.lastVersion){
+      if(this.versionNumber>=this.minVersion){
+        this.ferramenta.showAlert("Aplicativo Desatualizado", "O aplicativo não está compativel com a última versão lançada, por favor atualize seu aplicativo.");
+      }else{
+        this.ferramenta.showAlert("Aplicativo Desatualizado", "O aplicativo não possui a versão minima para uso, por favor atualize seu aplicativo");
+        this.blockApp = true;
+      }
+    }else{
+      this.ferramenta.showAlert("Aplicativo Atualizado", "Aplicativo atualizado!");
+    }
   }
 
   public login() {

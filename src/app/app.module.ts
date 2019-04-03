@@ -39,6 +39,8 @@ import { LocalizacaoService } from '../providers/ferramentas/localizacao.service
 
 import localePtBr from '@angular/common/locales/pt';
 import { registerLocaleData } from '@angular/common';
+import { AppVersion } from '@ionic-native/app-version';
+import { VersaoAppService } from '../providers/dataServer/versao_app.service';
 
 registerLocaleData(localePtBr)
 
@@ -89,7 +91,9 @@ registerLocaleData(localePtBr)
     LocalizacaoService,
     File, 
     FileTransfer,
-    Base64
+    Base64,
+    AppVersion,
+    VersaoAppService
   ]
 })
 export class AppModule { }

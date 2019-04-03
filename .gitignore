@@ -101,3 +101,6 @@ local_settings.py
 .idea
 venv
 tmp
+node_modules
+platforms
+plugins
