@@ -7,6 +7,7 @@ import { FerramentasProvider } from './../../providers/ferramentas/ferramentas';
 import { AuthenticationServiceLocal } from './../../providers/dataLocal/authentication.service';
 import { UsuarioService } from './../../providers/dataServer/usuario.service';
 import { VersaoAppService } from '../../providers/dataServer/versao_app.service';
+import { AtualizacaoPage } from '../atualizacao/atualizacao';
 
 @IonicPage()
 @Component({
@@ -17,8 +18,6 @@ import { VersaoAppService } from '../../providers/dataServer/versao_app.service'
 export class LoginPage {
   versionNumber;
   lastVersion;
-  minVersion;
-  blockApp : boolean = false;
   public model: any = {
     username: "",
     password: ""
@@ -45,13 +44,12 @@ export class LoginPage {
           this.lastVersion = resposta;
           if (this.versionNumber!==this.lastVersion){
             this.ferramenta.showAlert("Aplicativo Desatualizado", "O aplicativo não possui a versão minima para uso, por favor atualize seu aplicativo");
-            this.blockApp = true;
-          }else{
-            this.ferramenta.showAlert("Aplicativo Atualizado", "Mantenha sempre seu Aplicativo atualizado!");
+            this.navCtrl.setRoot(AtualizacaoPage);
           }
       },
       error => {
         this.ferramenta.showAlert("Falha na Verificação!", "Não foi possivel verificar a versão do seu aplicativo, por favor atualize!");
+        this.navCtrl.setRoot(AtualizacaoPage);
       });
     }
     ).catch(error => console.log(error));
