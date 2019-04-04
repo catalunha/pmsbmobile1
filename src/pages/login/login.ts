@@ -6,8 +6,6 @@ import { AuthenticationService } from './../../providers/dataServer/authenticati
 import { FerramentasProvider } from './../../providers/ferramentas/ferramentas';
 import { AuthenticationServiceLocal } from './../../providers/dataLocal/authentication.service';
 import { UsuarioService } from './../../providers/dataServer/usuario.service';
-import { VersaoAppService } from '../../providers/dataServer/versao_app.service';
-import { AtualizacaoPage } from '../atualizacao/atualizacao';
 
 @IonicPage()
 @Component({
@@ -17,7 +15,7 @@ import { AtualizacaoPage } from '../atualizacao/atualizacao';
 })
 export class LoginPage {
   versionNumber;
-  lastVersion;
+  blockApp : boolean = false;
   public model: any = {
     username: "",
     password: ""
@@ -30,8 +28,7 @@ export class LoginPage {
     private authentication_service: AuthenticationService,
     private authentication_local: AuthenticationServiceLocal,
     private ferramenta: FerramentasProvider,
-    private appVersion: AppVersion,
-    private versaoApp_service: VersaoAppService) {
+    private appVersion: AppVersion) {
       this.appVersionVerification()
   }
 
@@ -39,20 +36,10 @@ export class LoginPage {
     this.appVersion.getVersionNumber().then(
     versao => {
       this.versionNumber = versao;
-      this.versaoApp_service.getVersaoApp({}).subscribe(
-        resposta => {
-          this.lastVersion = resposta;
-          if (this.versionNumber!==this.lastVersion){
-            this.ferramenta.showAlert("Aplicativo Desatualizado", "O aplicativo não possui a versão minima para uso, por favor atualize seu aplicativo");
-            this.navCtrl.setRoot(AtualizacaoPage);
-          }
-      },
-      error => {
-        this.ferramenta.showAlert("Falha na Verificação!", "Não foi possivel verificar a versão do seu aplicativo, por favor atualize!");
-        this.navCtrl.setRoot(AtualizacaoPage);
-      });
     }
-    ).catch(error => console.log(error));
+    ).catch(error => {
+      this.ferramenta.showAlert("Falha na Verificação!", "Não foi possivel verificar a versão atual do aplicativo, por favor atualize!");
+    });
   }
 
   public login() {
