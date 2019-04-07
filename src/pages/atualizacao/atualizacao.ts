@@ -58,8 +58,8 @@ export class AtualizacaoPage {
       ).catch(error => {
         console.log(error);
         this.ferramenta.showAlert("Falha na Verificação!", "Não foi possivel verificar a versão atual do aplicativo, por favor atualize!");
-        // resolve("");
-        resolve("1.0.0"); // REMOVER ESTA LINHA E DESCOMENTAR A LINHA ACIMA!
+        resolve("");
+        // resolve("1.0.0"); // REMOVER ESTA LINHA E DESCOMENTAR A LINHA ACIMA!
       });
     });
   }

@@ -36,7 +36,7 @@ export class QuestionariosPage {
     this.getQuestionariosLocal();
 
     this.setorCensitarioOpts = {
-      title: 'Setor Centitário',
+      title: 'Setor Censitário',
       subTitle: 'Para poder iniciar um questionário é preciso selecionar um setor'
     };
   }
