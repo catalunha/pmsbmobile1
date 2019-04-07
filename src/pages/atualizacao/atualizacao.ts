@@ -27,12 +27,12 @@ export class AtualizacaoPage {
     this.appAtualizationVerification().then(
       versionVerification => {
         if (versionVerification) {
-          console.log("Block False");
+          // console.log("Block False");
           let usuario_atual = this.authenticarion_local.getAuthentication();
           if (usuario_atual) this.navCtrl.setRoot(TabsPage);
           else this.navCtrl.setRoot(LoginPage);
         } else {
-          console.log("Block True");
+          // console.log("Block True");
           this.block = true;
         }
       }
@@ -58,7 +58,8 @@ export class AtualizacaoPage {
       ).catch(error => {
         console.log(error);
         this.ferramenta.showAlert("Falha na Verificação!", "Não foi possivel verificar a versão atual do aplicativo, por favor atualize!");
-        resolve("");
+        // resolve("");
+        resolve("1.0.0"); // REMOVER ESTA LINHA E DESCOMENTAR A LINHA ACIMA!
       });
     });
   }
@@ -71,7 +72,7 @@ export class AtualizacaoPage {
         },
         error => {
           console.log(error);
-          this.ferramenta.showAlert("Falha na Verificação!", "Não foi possivel verificar a versão atual do disponível, por favor atualize!");
+          this.ferramenta.showAlert("Falha na Verificação!", "Não foi possivel verificar a versão atual disponível no servidor, por favor atualize!");
           resolve("");
         });
     });

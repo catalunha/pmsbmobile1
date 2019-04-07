@@ -14,13 +14,14 @@ import { UsuarioService } from './../../providers/dataServer/usuario.service';
   providers: [AuthenticationService, AuthenticationServiceLocal, UsuarioService]
 })
 export class LoginPage {
+
   versionNumber;
   blockApp : boolean = false;
+
   public model: any = {
     username: "",
     password: ""
   };
-
 
   constructor(public navCtrl: NavController,
     public navParams: NavParams,
@@ -29,17 +30,11 @@ export class LoginPage {
     private authentication_local: AuthenticationServiceLocal,
     private ferramenta: FerramentasProvider,
     private appVersion: AppVersion) {
-      this.appVersionVerification()
+      this.appVersionVerification();
   }
 
   public appVersionVerification() {
-    this.appVersion.getVersionNumber().then(
-    versao => {
-      this.versionNumber = versao;
-    }
-    ).catch(error => {
-      this.ferramenta.showAlert("Falha na Verificação!", "Não foi possivel verificar a versão atual do aplicativo, por favor atualize!");
-    });
+    this.appVersion.getVersionNumber().then(versao => this.versionNumber = versao).catch(error => console.log(error));
   }
 
   public login() {

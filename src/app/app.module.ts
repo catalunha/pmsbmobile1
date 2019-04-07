@@ -43,6 +43,8 @@ import { AppVersion } from '@ionic-native/app-version';
 import { VersaoAppService } from '../providers/dataServer/versao_app.service';
 import { AtualizacaoPage } from '../pages/atualizacao/atualizacao';
 
+import { SocialSharing } from '@ionic-native/social-sharing';
+
 registerLocaleData(localePtBr)
 
 @NgModule({
@@ -96,7 +98,8 @@ registerLocaleData(localePtBr)
     FileTransfer,
     Base64,
     AppVersion,
-    VersaoAppService
+    VersaoAppService,
+    SocialSharing
   ]
 })
 export class AppModule { }

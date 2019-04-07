@@ -1,7 +1,12 @@
 <ion-header>
-  <ion-navbar color="primary">
+  <ion-toolbar color="primary">
     <ion-title>Visualizando Respostas</ion-title>
-  </ion-navbar>
+    <ion-buttons end>
+      <button ion-button icon-only color="royal" (click)="onShare()">
+        <ion-icon name="share"></ion-icon>
+      </button>
+    </ion-buttons>
+  </ion-toolbar>
 </ion-header>
 
 <ion-content class="fundo">
@@ -77,8 +82,8 @@
         <div *ngIf="perguntaAtual.tipo == 4">
           <h5 class="centro">{{ perguntaAtual.texto }}</h5>
           <p>Coordenada Salva:</p>
-            <p>Latitude: {{ perguntaAtual.resposta.latitudeResposta }} </p>
-            <p>Longitude: {{ perguntaAtual.resposta.longitudeResposta }} </p>
+          <p>Latitude: {{ perguntaAtual.resposta.latitudeResposta }} </p>
+          <p>Longitude: {{ perguntaAtual.resposta.longitudeResposta }} </p>
         </div>
 
         <!-- ==================================================================== -->

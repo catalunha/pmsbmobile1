@@ -5,10 +5,10 @@ import { IonicPage, NavController, NavParams } from 'ionic-angular';
 // Imports Services e Providers
 import { QuestionarioIniciadoLocalService } from '../../providers/dataLocal/questionario_iniciado.service';
 
-// Imports Pages
-
 // Imports Models
 import { QuestionariosList, Questionario } from '../../models/questionario.model';
+
+import { SocialSharing } from '@ionic-native/social-sharing';
 
 @IonicPage()
 @Component({
@@ -23,8 +23,9 @@ export class VisualizarPage {
 
   constructor(public navCtrl: NavController,
     public navParams: NavParams,
-    private questionario_local: QuestionarioIniciadoLocalService) {
-      this.recuperaQuestionario();
+    private questionario_local: QuestionarioIniciadoLocalService,
+    private socialSharing: SocialSharing) {
+    this.recuperaQuestionario();
   }
 
   recuperaQuestionario() {
@@ -41,4 +42,14 @@ export class VisualizarPage {
     );
   }
 
+  onShare() {
+    console.log(JSON.stringify(this.questionarioAtual));
+    const message = JSON.stringify(this.questionarioAtual);
+    const subject = `Questionário: ${this.questionarioAtual.nome}`
+    this.socialSharing.share(message, subject).then(() => {
+      console.log("shareSheetShare: Success");
+    }).catch(() => {
+      console.error("shareSheetShare: failed");
+    });
+  }
 }
