@@ -41,6 +41,7 @@ import localePtBr from '@angular/common/locales/pt';
 import { registerLocaleData } from '@angular/common';
 import { AppVersion } from '@ionic-native/app-version';
 import { VersaoAppService } from '../providers/dataServer/versao_app.service';
+import { AreaPage } from '../pages/area/area';
 
 registerLocaleData(localePtBr)
 
@@ -55,7 +56,8 @@ registerLocaleData(localePtBr)
     PendenciasPage,
     PerguntaPage,
     QuestionariosPage,
-    VisualizarPage
+    VisualizarPage,
+    AreaPage
   ],
   imports: [
     BrowserModule,
@@ -75,7 +77,8 @@ registerLocaleData(localePtBr)
     PendenciasPage,
     PerguntaPage,
     QuestionariosPage,
-    VisualizarPage
+    VisualizarPage,
+    AreaPage
   ],
   providers: [
     StatusBar,

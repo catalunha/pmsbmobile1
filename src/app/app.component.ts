@@ -18,7 +18,9 @@ import { AtualizacaoPage } from '../pages/atualizacao/atualizacao';
 })
 export class MyApp {
   rootPage: any;
-
+  appMyVersion: string;
+  lastVersion: string;
+  versionVerification: any;
   constructor(platform: Platform,
     statusBar: StatusBar,
     splashScreen: SplashScreen,
@@ -28,8 +30,8 @@ export class MyApp {
     private versaoApp_service: VersaoAppService) {
 
     let usuario_atual = this.authenticarion_local.getAuthentication();
-    let versionVerification = this.appVersionVerification();
-    if(versionVerification){
+    this.versionVerification = true;
+    if(this.versionVerification){
       if (usuario_atual) {
         this.rootPage = TabsPage;
       } else {
@@ -46,42 +48,27 @@ export class MyApp {
     });
   }
 
-  public async appAtualizationVerification(){
-    let lastVersion = await this.appLastVersionVerification();
-    let appVersion = await this.appVersionVerification();
-
-    if(lastVersion!==appVersion){
-      return false;
-    }else{
-      return true;
-    }
-  }
-
-  
-  public appVersionVerification() {
-    return new Promise((resolve, reject) => {
-      this.appVersion.getVersionNumber().then(
+  public appAtualizationVerification(){
+    this.appVersion.getVersionNumber().then(
       versao => {
-        resolve(versao);
-      }
-      ).catch(error => {
-        this.ferramenta.showAlert("Falha na Verificação!", "Não foi possivel verificar a versão atual do aplicativo, por favor atualize!");
-        this.rootPage = AtualizacaoPage;
-        reject(error);
-      });
-    });
-  }
-  public appLastVersionVerification(){
-    return new Promise((resolve, reject) => {
-      this.versaoApp_service.getVersaoApp({}).subscribe(
-        resposta => {
-          resolve(resposta);
+        this.appMyVersion = versao;
+        this.versaoApp_service.getVersaoApp({}).subscribe(
+          resposta => {
+            this.lastVersion = resposta;
+            if(this.lastVersion!==this.appMyVersion){
+              return false;
+            }else{
+              return true;
+            }
       },
       error => {
         this.ferramenta.showAlert("Falha na Verificação!", "Não foi possivel verificar a versão atual do aplicativo, por favor atualize!");
         this.rootPage = AtualizacaoPage;
-        reject(error);
       });
+      }
+    ).catch(error => {
+      this.ferramenta.showAlert("Falha na Verificação!", "Não foi possivel verificar a versão atual do aplicativo, por favor atualize!");
+      this.rootPage = AtualizacaoPage;
     });
   }
 }
