@@ -16,6 +16,8 @@ import { RespostaLocalizacaoService } from '../../providers/dataServer/tipo_resp
 import { RespostaNumeroService } from '../../providers/dataServer/tipo_respostas/numero_respostas.service';
 import { Pergunta } from '../../models/pergunta.model';
 import { LocalizacaoService } from '../../providers/dataServer/recursos/localizacao.service';
+import { SetorCensitarioLocalService } from '../../providers/dataLocal/setor_censitario.service'
+import { SetorCensitarioService } from '../../providers/dataServer/setor_censitario.service';
 
 @IonicPage()
 @Component({
@@ -25,7 +27,7 @@ import { LocalizacaoService } from '../../providers/dataServer/recursos/localiza
     RespostaQuestionarioService, QuestionarioLocalService, RespostaPerguntaService,
     RespostaPossivelEscolhaService, RespostaTextoService, RespostaArquivoService,
     RespostaImagemService, RespostaLocalizacaoService, RespostaNumeroService,
-    LocalizacaoService]
+    LocalizacaoService, SetorCensitarioLocalService, SetorCensitarioService]
 })
 export class ConcluidoPage {
 
@@ -47,6 +49,8 @@ export class ConcluidoPage {
 
   contadorSincronismo: number;
   loading;
+
+  private validarPostagem = true
 
   err = error => console.error(error);
   erroAndFinishLoading = error => {
@@ -70,7 +74,9 @@ export class ConcluidoPage {
     private rImagem: RespostaImagemService,
     private rLocalizacao: RespostaLocalizacaoService,
     private rValor: RespostaNumeroService,
-    private localizacaoService: LocalizacaoService) {
+    private localizacaoService: LocalizacaoService,
+    private setorCensitarioLocalService :SetorCensitarioLocalService,
+    private setorCensitarioService:SetorCensitarioService) {
   }
 
   // limpar() {
@@ -163,15 +169,47 @@ export class ConcluidoPage {
     this.questionario_concluido_service.removeQuestionarioConcluido(questionario, this.questionariosConcluidos);
   }
 
-  sincronizar() {
-    // console.log(this.questionariosConcluidos);
-    if (this.questionariosConcluidos && this.questionariosConcluidos.questionarios.length > 0) {
-      this.loadingIniciar();
-      this.verificarAtualizacoesQuestionarios();
+  async sincronizar() {
+    let setores_offline = this.setorCensitarioLocalService.getSetoresOffline()
+    if(setores_offline){
+      await this.sincronizarSetoresOffline(setores_offline)
+    }
+    await this.sincronizarQuestionarioComcluidos()
+  }
+
+  async sincronizarQuestionarioComcluidos(){
+    console.log("sincronizar Questionarios Comcluidos ") 
+    if (this.questionariosConcluidos && this.questionariosConcluidos.questionarios.length > 0 && this.validarPostagem) {
+      await this.loadingIniciar();
+      await this.verificarAtualizacoesQuestionarios();
     } else {
       this.ferramenta.presentToast("Nenhuma Questionário Para Sincronizar");
     }
   }
+
+  async sincronizarSetoresOffline(setores_offline){
+    console.log("sincronizar Setores Offline")
+    await setores_offline.forEach(setor => {
+      this.postSetorSencitario(setor)
+    });
+    await this.apagaListaAreasOffline()
+  }
+
+  async apagaListaAreasOffline(){
+    if(this.validarPostagem){
+      this.ferramenta.presentToast(" Áreas offline sincronizadas com sucesso !")
+      this.setorCensitarioLocalService.apagarListaOffline()
+    }
+  }
+
+  async postSetorSencitario(setor){
+    await this.setorCensitarioService.add(setor).subscribe((resposta)=>{
+      this.validarPostagem = true
+    },(erro)=>{
+      this.validarPostagem = false
+      this.ferramenta.presentToast("Houve um erro na sincronização das áreas.")
+    })
+  }  
 
   // -----------------------------------------------------------------------//
   // PUSH

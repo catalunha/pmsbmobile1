@@ -8,6 +8,7 @@ import { ToastController } from 'ionic-angular';
 import { FerramentasProvider } from './ferramentas'
 import { Resposta, Imagem } from '../../models/resposta.model';
 import { Pergunta } from '../../models/pergunta.model';
+import { LoadingController } from 'ionic-angular';
 
 @Injectable()
 export class CameraService extends FerramentasProvider {
@@ -15,8 +16,9 @@ export class CameraService extends FerramentasProvider {
   constructor(private camera: Camera,
     private actionSheetCtrl: ActionSheetController,
     private alert: AlertController,
-    private toast: ToastController) {
-    super(alert, toast);
+    private toast: ToastController,
+    public loadingCtrl: LoadingController) {
+    super(alert, toast, loadingCtrl);
   }
 
   coordenadas: any;

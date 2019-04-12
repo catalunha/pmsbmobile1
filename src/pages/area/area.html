@@ -5,23 +5,39 @@
 </ion-header>
 
 <ion-content>
+  <!--
+  <ion-refresher (ionRefresh)="atualizarListaSetores()">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+  -->
   <div>
-    <ion-list>
+    <ion-list *ngIf="setoresDisponiveis">
+
+      <ion-card *ngFor="let area of setoresDisponiveis.setoresCensitarios">
+        <ion-card-content>
+          {{ getSetorNome(area) }}
+        </ion-card-content>
+      </ion-card>
+      <!--
       <ion-item>
         <ion-label>Áreas</ion-label>
         <ion-select [(ngModel)]="areaSetorCensitario" multiple="true" cancelText="Nah" okText="Okay!">
           <ion-option *ngFor="let area of setoresDisponiveis.setoresCensitarios" [value]="setor">{{area.nome}}</ion-option>
         </ion-select>
-      </ion-item>
+      </ion-item>-->
     </ion-list>
   </div>
 </ion-content>
 
 <ion-footer>
   <ion-toolbar style="text-align: center">
-    <button class="botao" ion-button color="danger">
+    <ion-item>
+      <ion-label color="primary" stacked>Nova área:</ion-label>
+      <ion-input [(ngModel)]="area_nova" type="email" placeholder="Insira aqui o nome da nova área"></ion-input>
+    </ion-item>
+    <br>
+    <button (click)="adicionarNovaArea()" class="botao" ion-button color="danger">
       Cadastrar Nova Área
     </button>
   </ion-toolbar>
 </ion-footer>
-  

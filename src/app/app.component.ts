@@ -31,16 +31,15 @@ export class MyApp {
 
     let usuario_atual = this.authenticarion_local.getAuthentication();
     this.versionVerification = true;
-    if(this.versionVerification){
+    if (this.versionVerification) {
       if (usuario_atual) {
         this.rootPage = TabsPage;
       } else {
         this.rootPage = LoginPage;
       }
-    }else{
+    } else {
       this.rootPage = AtualizacaoPage;
     }
-      
 
     platform.ready().then(() => {
       statusBar.styleDefault();
@@ -48,23 +47,23 @@ export class MyApp {
     });
   }
 
-  public appAtualizationVerification(){
+  public appAtualizationVerification() {
     this.appVersion.getVersionNumber().then(
       versao => {
         this.appMyVersion = versao;
         this.versaoApp_service.getVersaoApp({}).subscribe(
           resposta => {
             this.lastVersion = resposta;
-            if(this.lastVersion!==this.appMyVersion){
+            if (this.lastVersion !== this.appMyVersion) {
               return false;
-            }else{
+            } else {
               return true;
             }
-      },
-      error => {
-        this.ferramenta.showAlert("Falha na Verificação!", "Não foi possivel verificar a versão atual do aplicativo, por favor atualize!");
-        this.rootPage = AtualizacaoPage;
-      });
+          },
+          error => {
+            this.ferramenta.showAlert("Falha na Verificação!", "Não foi possivel verificar a versão atual do aplicativo, por favor atualize!");
+            this.rootPage = AtualizacaoPage;
+          });
       }
     ).catch(error => {
       this.ferramenta.showAlert("Falha na Verificação!", "Não foi possivel verificar a versão atual do aplicativo, por favor atualize!");

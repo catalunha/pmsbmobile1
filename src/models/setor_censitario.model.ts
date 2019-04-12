@@ -5,7 +5,8 @@ export class SetorCensitario {
     fake_deletado: boolean;
     fake_deletado_em: boolean;
     nome: string;
-    setor_superior: string
+    setor_superior: string;
+    ativo: any;
 }
 
 export class SetorCensitarioList {

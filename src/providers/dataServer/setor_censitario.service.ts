@@ -20,4 +20,9 @@ export class SetorCensitarioService extends CoreService{
     public getSetoresCensitarios(params: any): Observable<SetorCensitario[]>{
       return super.all(params);
     }
+
+    public setSetorCensitario(params: any){
+      return super.add(params)
+    }
+
 }

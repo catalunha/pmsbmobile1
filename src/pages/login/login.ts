@@ -59,7 +59,7 @@ export class LoginPage {
       error => {
         this.ferramenta.showAlert("Falha no login!", "Verifique Usuário e Senha");
         loading.dismiss();
-        console.error(error);
+        console.error(JSON.stringify(error));
       }
     );
   }

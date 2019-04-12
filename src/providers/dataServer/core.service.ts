@@ -12,7 +12,7 @@ export class CoreService {
   // public base_url: string = "http://pmsb.pythonanywhere.com/pmsb";
   // public base_url: string = "http://104.131.168.27/pmsb";
   // public base_url: string = "http://127.0.0.1:8000/pmsb";
-     public base_url: string = "http://174.138.119.228/pmsb";
+     public base_url: string = "http://174.138.119.228";
   // public base_url: string = "http://192.168.2.127:8000/pmsb"; // Rede Local
 
   private headers: Headers = new Headers({

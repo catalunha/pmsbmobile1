@@ -34,14 +34,14 @@ export class QuestionariosPage {
     private ferramentas: FerramentasProvider
   ) {
     this.getQuestionariosLocal();
-
+    this.getSetoresLocal()
     this.setorCensitarioOpts = {
       title: 'Setor Centitário',
       subTitle: 'Para poder iniciar um questionário é preciso selecionar um setor'
     };
   }
 
-  ngOnInit() {
+  async ngOnInit() {
     const atualizarQuestionarios = questionarioDisponivel => this.questionariosDisponiveis = questionarioDisponivel;
     this.questionarioDisponivelLocalService.eventoUpdateQuestionarioDisponivel
       .subscribe(atualizarQuestionarios);
@@ -51,28 +51,29 @@ export class QuestionariosPage {
       .subscribe(atualizarSetores);
   }
 
-  getQuestionariosLocal() {
+  async getQuestionariosLocal() {
     const sucess = questionariosDisponiveis => {
       this.questionariosDisponiveis = questionariosDisponiveis;
     }
     const error = error => console.log(error);
-    this.questionarioDisponivelLocalService.getQuestionariosDisponiveis()
+    await this.questionarioDisponivelLocalService.getQuestionariosDisponiveis()
       .then(sucess)
       .catch(error);
+    await console.log(this.questionariosDisponiveis.questionarios)
   }
 
-  getSetoresLocal() {
+  async getSetoresLocal() {
     const sucess = setoresDisponiveis => {
       this.setoresDisponiveis = setoresDisponiveis;
     }
     const error = error => console.log(error);
-    this.setorCensitarioDisponivelService.getSetoresCensitariosDisponiveis()
+    await this.setorCensitarioDisponivelService.getSetoresCensitariosDisponiveis()
       .then(sucess)
       .catch(error);
+    console.log(this.setoresDisponiveis.setoresCensitarios)
   }
 
   $iniciarQuestionario(questionario: Questionario) {
-    // console.log(questionario.setor_censitario);
     if (questionario.setor_censitario) {
       questionario.iniciado_em = new Date().toISOString();
       questionario.atualizado_em = new Date().toISOString();
@@ -96,7 +97,7 @@ export class QuestionariosPage {
         ]
       });
       confirm.present();
-    }else{
+    } else {
       this.ferramentas.showAlert("Atenção", "Para iniciar este questionário, primeiro é necessário selecionar um SETOR CENSITÁRIO.");
     }
   }
