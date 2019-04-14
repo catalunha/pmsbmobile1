@@ -18,6 +18,7 @@ import { Pergunta } from '../../models/pergunta.model';
 import { LocalizacaoService } from '../../providers/dataServer/recursos/localizacao.service';
 import { SetorCensitarioLocalService } from '../../providers/dataLocal/setor_censitario.service'
 import { SetorCensitarioService } from '../../providers/dataServer/setor_censitario.service';
+import { SetorCensitarioList, SetorCensitario } from '../../models/setor_censitario.model';
 
 @IonicPage()
 @Component({
@@ -49,9 +50,10 @@ export class ConcluidoPage {
 
   contadorSincronismo: number;
   loading;
+  setoresDisponiveis: SetorCensitarioList;
 
   private validarPostagem = true
-
+  questionario_dict = {}
   err = error => console.error(error);
   erroAndFinishLoading = error => {
     console.error(error);
@@ -75,27 +77,44 @@ export class ConcluidoPage {
     private rLocalizacao: RespostaLocalizacaoService,
     private rValor: RespostaNumeroService,
     private localizacaoService: LocalizacaoService,
-    private setorCensitarioLocalService :SetorCensitarioLocalService,
-    private setorCensitarioService:SetorCensitarioService) {
+    private setorCensitarioLocalService: SetorCensitarioLocalService,
+    private setorCensitarioService: SetorCensitarioService) {
+    this.getSetoresLocal()
   }
 
   // limpar() {
   //   this.questionario_concluido_service._removeQuestionarioConcluidosAll();
   // }
 
-  ionViewDidEnter() {
-    this.getQuestionariosConcluidos();
+  async ngOnInit() {
+    await this.getQuestionariosConcluidos()
+    await this.getSetoresLocal()
+  }
+
+  async ionViewDidEnter() {
+    await this.getQuestionariosConcluidos();
   }
 
   getQuestionariosConcluidos() {
     this.questionario_concluido_service.getQuestionariosConcluidos().then(
       data => {
         if (data) {
-          this.questionariosConcluidos = data;
+          this.questionariosConcluidos = data
           this.atualizarIcons();
         }
       }
     ).catch(this.err);
+  }
+
+  getSetoresLocal() {
+    const sucess = setoresDisponiveis => {
+      this.setoresDisponiveis = setoresDisponiveis;
+      console.log(this.setoresDisponiveis.setoresCensitarios);
+    }
+    const error = error => console.log(error);
+    this.setorCensitarioLocalService.getSetoresCensitariosDisponiveis()
+      .then(sucess)
+      .catch(error);
   }
 
   atualizarIcons() {
@@ -112,6 +131,8 @@ export class ConcluidoPage {
       } else questionarioConcluido.questionario_sincronizado = false;
     }
   }
+
+
 
   opcoesQuestionario(questionario: Questionario) {
     const actionSheet = this.actionSheetCtrl.create({
@@ -171,15 +192,16 @@ export class ConcluidoPage {
 
   async sincronizar() {
     let setores_offline = this.setorCensitarioLocalService.getSetoresOffline()
-    if(setores_offline){
+    if (setores_offline) {
+      this.validarPostagem = true
       await this.sincronizarSetoresOffline(setores_offline)
     }
     await this.sincronizarQuestionarioComcluidos()
   }
 
-  async sincronizarQuestionarioComcluidos(){
-    console.log("sincronizar Questionarios Comcluidos ") 
-    if (this.questionariosConcluidos && this.questionariosConcluidos.questionarios.length > 0 && this.validarPostagem) {
+  async sincronizarQuestionarioComcluidos() {
+    console.log("sincronizar Questionarios Comcluidos ")
+    if (this.questionariosConcluidos && this.questionariosConcluidos.questionarios.length > 0) {
       await this.loadingIniciar();
       await this.verificarAtualizacoesQuestionarios();
     } else {
@@ -187,30 +209,38 @@ export class ConcluidoPage {
     }
   }
 
-  async sincronizarSetoresOffline(setores_offline){
+  async sincronizarSetoresOffline(setores_offline) {
     console.log("sincronizar Setores Offline")
     await setores_offline.forEach(setor => {
-      this.postSetorSencitario(setor)
+      this.postarSetorOfflineTratandoErros(setor)
     });
     await this.apagaListaAreasOffline()
   }
 
-  async apagaListaAreasOffline(){
-    if(this.validarPostagem){
+  async postarSetorOfflineTratandoErros(setor) {
+    this.setorCensitarioLocalService.postSetorSencitario(setor).then((result) => { console.log(result) })
+      .catch(err => this.tratarErroNomeJaExiste(err))
+  }
+
+  async tratarErroNomeJaExiste(error) {
+    let error_recebido = error.error.json()
+    console.log(error_recebido)
+    if (error_recebido.nome == "setor censitario com este nome já existe.") {
+      console.log(`O setor ${error.setor.nome} já existe no banco de dados com esse nome`)
+      var _setor = error.setor
+      _setor.nome = _setor.nome + '/'
+      console.log(_setor)
+      this.postarSetorOfflineTratandoErros(_setor)
+    }
+  }
+
+  async apagaListaAreasOffline() {
+    console.log("Apagar Lista Offline")
+    if (this.validarPostagem) {
       this.ferramenta.presentToast(" Áreas offline sincronizadas com sucesso !")
       this.setorCensitarioLocalService.apagarListaOffline()
     }
   }
-
-  async postSetorSencitario(setor){
-    await this.setorCensitarioService.add(setor).subscribe((resposta)=>{
-      this.validarPostagem = true
-    },(erro)=>{
-      this.validarPostagem = false
-      this.ferramenta.presentToast("Houve um erro na sincronização das áreas.")
-    })
-  }  
-
   // -----------------------------------------------------------------------//
   // PUSH
 
@@ -419,4 +449,16 @@ export class ConcluidoPage {
   private verificarSincronismo() {
     this.contadorSincronismo < 5 ? this.contadorSincronismo++ : this.loadingFinalizar();
   }
+
+  getSetorSuperior(setor_superior) {
+    return this.setoresDisponiveis.setoresCensitarios.find(setor => { return setor.id == setor_superior })//.nome
+  }
+
+  getSetorNome(setor) {
+    if (setor.setor_superior) {
+      return this.getSetorNome(this.getSetorSuperior(setor.setor_superior)) + " -> " + setor.nome
+    }
+    return setor.nome
+  }
+
 }

@@ -13,8 +13,12 @@
       <ion-card-content>
         <h2 class="card-title">
           {{ questionario.nome }}
-        </h2>
+        </h2> 
         <hr>
+        <p *ngIf="setoresDisponiveis" class="ion-text-justify">
+          <strong>Área: </strong> {{ getNomeArea(questionario.setor_censitario) }}
+        </p>
+
         <p>
           Última atualização: {{ questionario.atualizado_em | date:'h:mm:ss a, d/M/yy' }}
         </p>

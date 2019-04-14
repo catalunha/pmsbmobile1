@@ -73,13 +73,41 @@ export class QuestionariosPage {
     console.log(this.setoresDisponiveis.setoresCensitarios)
   }
 
+
+  async $escolherSetor(questionario) {
+    let alert = this.alertCtrl.create();
+    alert.setTitle(`Selecione abaixo a área.`);
+
+    this.setoresDisponiveis.setoresCensitarios.forEach((setor) => {
+      alert.addInput({
+        type: 'radio',
+        label: this.setorCensitarioDisponivelService.getSetorNome(setor, this.setoresDisponiveis),
+        value: setor.id,
+        checked: false
+      });
+    })
+
+    alert.addButton('Cancelar');
+    alert.addButton({
+      text: 'Salvar',
+      handler: (data) => {
+        this.setorCensitarioDisponivelService.getSetorPeloId(data).then(data => { questionario['setor_censitario'] = data }).then(()=>{
+          this.$iniciarQuestionario(questionario)
+        })
+        console.log(questionario)
+        
+      }
+    });
+    alert.present();
+  }
+
   $iniciarQuestionario(questionario: Questionario) {
     if (questionario.setor_censitario) {
       questionario.iniciado_em = new Date().toISOString();
       questionario.atualizado_em = new Date().toISOString();
       const confirm = this.alertCtrl.create({
         title: 'Confirmar Ação',
-        message: 'Você deseja iniciar uma nova resolução para este questionário?',
+        message: `Você deseja iniciar uma nova resolução para este questionário na área ${this.setorCensitarioDisponivelService.getSetorNome(questionario.setor_censitario, this.setoresDisponiveis)}`,
         buttons: [
           {
             text: 'Não',

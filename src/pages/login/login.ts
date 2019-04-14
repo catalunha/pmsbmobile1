@@ -52,7 +52,7 @@ export class LoginPage {
     this.authentication_service.login(this.model).subscribe(
       resposta => {
         this.authentication_local.saveAuthentication(resposta);
-        this.ferramenta.showAlert("Bem vindo(a)!", "Login realizado com sucesso.");
+        //this.ferramenta.showAlert("Bem vindo(a)!", "Login realizado com sucesso.");
         this.navCtrl.setRoot(TabsPage);
         loading.dismiss();
       },

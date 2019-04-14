@@ -14,7 +14,7 @@
     <ion-list *ngIf="setoresDisponiveis">
 
       <ion-card *ngFor="let area of setoresDisponiveis.setoresCensitarios">
-        <ion-card-content>
+        <ion-card-content class="ion-text-justify">
           {{ getSetorNome(area) }}
         </ion-card-content>
       </ion-card>

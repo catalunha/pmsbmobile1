@@ -25,7 +25,7 @@ import { EscolhaUnica, MultiplaEscolha, TextoResposta, Arquivo, Numero, Resposta
   providers: [QuestionarioIniciadoLocalService, SeletorArquivoService]
 })
 export class PerguntaPage {
-
+  filePath
   multiplaEscolhaResposta: boolean = false;
   escolhaUnicaResposta: boolean = false;
   entradaTextoResposta: boolean = false;
@@ -42,7 +42,7 @@ export class PerguntaPage {
   textoResposta: TextoResposta = { texto: "", latitude: "", longitude: "" };
   numero: Numero = { numero: null, latitude: "", longitude: "" };
   coordenadas: Resposta = { latitude: '', longitude: '' };
-
+  area
   error = error => { console.log(error); }
 
   constructor(public navCtrl: NavController,
@@ -54,6 +54,7 @@ export class PerguntaPage {
     private ferramenta: FerramentasProvider,
     private base64: Base64) {
     this.recuperaQuestionario();
+    this.area = this.navParams.get("area")
   }
 
   ionViewDidEnter() {
@@ -233,6 +234,7 @@ export class PerguntaPage {
       file => {
         this.seletorArquivos.readPathFile(file).then(
           filePath => {
+            this.filePath = filePath
             var arquivoAux = new Arquivo();
             arquivoAux.latitude = this.coordenadas.latitude;
             arquivoAux.longitude = this.coordenadas.longitude;
@@ -266,7 +268,7 @@ export class PerguntaPage {
   }
 
   voltar() {
-    this.navCtrl.setRoot(TabsPage);
+    this.navCtrl.pop();
   }
 
 }

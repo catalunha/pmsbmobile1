@@ -16,6 +16,7 @@ import { setRootDomAdapter } from '@angular/platform-browser/src/dom/dom_adapter
 export class SetorCensitarioLocalService extends CoreServiceLocal {
 
     eventoUpdateSetorCensitario = new EventEmitter<SetorCensitarioList>();
+    setorDisponivel
 
     error = error => {
         this.ferramenta.presentToast("Não foi possível atualizar os dados.");
@@ -53,24 +54,34 @@ export class SetorCensitarioLocalService extends CoreServiceLocal {
         super.saveLocalStorage(`setores-offline`, JSON.stringify(setor_lista))
     }
 
-    apagarListaOffline(){
+    apagarListaOffline() {
         super.removeItemStorage('setores-offline')
     }
 
-    postNovoSetorCensitarioNoServidor(setor) {
-        let setor_obj = setor
-        if (setor.id) {
-            setor_obj = {
-                "id":setor.id,
-                "fake_deletado": false,
-                "fake_deletado_em": null,
-                "nome": setor.nome,
-                "ativo": true,
-                "setor_superior": setor.setor_superior
-            }
+    private prepararSetorParaPostagem(setor) {
+        let setor_obj = {
+            "fake_deletado": false,
+            "fake_deletado_em": null,
+            "nome": setor.nome,
+            "ativo": true,
+            "setor_superior": setor.setor_superior
         }
+        if (setor.id) {
+            setor_obj['id'] = setor.id
+        }
+        console.log({ Setor_vai_ser_postado: setor_obj })
+        return setor_obj
+    }
 
-        return this.setorCensitarioServer.setSetorCensitario(setor_obj)
+    async postSetorSencitario(setor) {
+
+        return await new Promise((resolve, reject) => {
+            this.setorCensitarioServer.setSetorCensitario(this.prepararSetorParaPostagem(setor)).subscribe((resposta) => {
+                resolve(true)
+            }, (erro) => {
+                reject({ error: erro, setor: setor })
+            })
+        })
     }
 
     public getSetoresCensitariosServidor() {
@@ -100,5 +111,22 @@ export class SetorCensitarioLocalService extends CoreServiceLocal {
 
     private atualizarViewSetorCensitario(setorCensitariosList: SetorCensitarioList) {
         this.eventoUpdateSetorCensitario.emit(setorCensitariosList);
+    }
+
+
+    getSetorSuperior(setor_superior, setoresDisponiveis) {
+        return setoresDisponiveis.setoresCensitarios.find(setor => { return setor.id == setor_superior })//.nome
+    }
+
+    getSetorNome(setor, setoresDisponiveis) {
+        if (setor.setor_superior) {
+            return this.getSetorNome(this.getSetorSuperior(setor.setor_superior, setoresDisponiveis), setoresDisponiveis) + " -> " + setor.nome
+        }
+        return setor.nome
+    }
+
+    async getSetorPeloId(id) {
+        let setorDisponivel = await this.getSetoresCensitariosDisponiveis()
+        return await setorDisponivel.setoresCensitarios.find((setor) => { return setor.id == id })
     }
 }

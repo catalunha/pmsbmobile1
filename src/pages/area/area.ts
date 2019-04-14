@@ -4,9 +4,9 @@ import { SetorCensitarioList, SetorCensitario } from '../../models/setor_censita
 import { FerramentasProvider } from '../../providers/ferramentas/ferramentas';
 import { SetorCensitarioLocalService } from '../../providers/dataLocal/setor_censitario.service';
 import { SetorCensitarioService } from '../../providers/dataServer/setor_censitario.service';
-import { AlertController } from 'ionic-angular';
+import { AlertController, Platform } from 'ionic-angular';
 import * as uuid from 'uuid'
-
+import { CssSelector } from '@angular/compiler';
 
 /**
  * Generated class for the AreaPage page.
@@ -27,15 +27,22 @@ export class AreaPage {
   setoresOffline: SetorCensitarioList;
 
   constructor(public navCtrl: NavController,
+    public plt: Platform,
     public alertCtrl: AlertController,
     public navParams: NavParams,
     public setorCensitario: SetorCensitarioLocalService,
     private ferramentas: FerramentasProvider) {
+      this.plt.ready().then(() => {
+        this.atualizarListaSetores()
+      })
+  }
+
+  ionViewDidEnter() {
+    //this.atualizarListaSetores()
     this.getSetoresLocal();
   }
 
   getSetoresLocal() {
-    console.log(uuid.v4())
     const sucess = setoresDisponiveis => {
       this.setoresDisponiveis = setoresDisponiveis;
       console.log(this.setoresDisponiveis.setoresCensitarios);
@@ -44,16 +51,15 @@ export class AreaPage {
     this.setorCensitario.getSetoresCensitariosDisponiveis()
       .then(sucess)
       .catch(error);
-    
   }
 
   getSetorSuperior(setor_superior) {
     return this.setoresDisponiveis.setoresCensitarios.find(setor => { return setor.id == setor_superior })//.nome
   }
 
-  getSetorNome(setor){
-    if(setor.setor_superior){
-      return this.getSetorNome(this.getSetorSuperior(setor.setor_superior)) + " -> " + setor.nome 
+  getSetorNome(setor) {
+    if (setor.setor_superior) {
+      return this.getSetorNome(this.getSetorSuperior(setor.setor_superior)) + " -> " + setor.nome
     }
     return setor.nome
   }
@@ -71,13 +77,13 @@ export class AreaPage {
         value: null,
         checked: true,
       });
-      
+
       this.setoresDisponiveis.setoresCensitarios.forEach((setor) => {
         alert.addInput({
           type: 'radio',
           label: this.getSetorNome(setor),
           value: setor.id,
-          checked: false
+          checked: false,
         });
       })
 
@@ -92,7 +98,7 @@ export class AreaPage {
     }
   }
 
-  gerarNovaInstanciaSetor(areasup){
+  gerarNovaInstanciaSetor(areasup) {
     let novo_setor = new SetorCensitario()
     novo_setor.fake_deletado = false
     novo_setor.fake_deletado_em = null
@@ -103,27 +109,44 @@ export class AreaPage {
   }
 
   async salvarNovaAreaServidor(areasup) {
+
     let novo_setor = this.gerarNovaInstanciaSetor(areasup)
-    await this.setorCensitario.postNovoSetorCensitarioNoServidor(novo_setor).subscribe(
+    await this.setorCensitario.postSetorSencitario(novo_setor).then(
       resposta => {
-        this.ferramentas.presentToast(`A área ${this.area_nova} foi cadastrada com suceso !`) 
-      },
-      error => {
-        novo_setor.id = uuid.v4()
-        this.setoresDisponiveis.setoresCensitarios.push(novo_setor)
-        this.setorCensitario.salvarSetorOffline(novo_setor)
-        this.setorCensitario.adicionarSetorCensitarios(this.setoresDisponiveis.setoresCensitarios)
-      }
-    )
-    await this.atualizarListaSetores()
+        this.ferramentas.presentToast(`A área ${this.area_nova} foi cadastrada com suceso !`)
+        this.atualizarListaSetores()
+      }).catch(
+        error => { this.tratarErrorSetor(error, novo_setor) }
+      )
   }
 
-  async atualizarListaSetores(){
+  async tratarErrorSetor(error, novo_setor) {
+    let err = error.error.json()
+    console.log(error.error.status)
+
+    if (error.error.status == 400) {
+      this.ferramentas.showAlert(err.nome, "")
+    } else if (error.error.status == 0) {
+      if (this.setoresDisponiveis.setoresCensitarios.find((setor) => { return setor.nome == novo_setor.nome })) {
+        this.ferramentas.showAlert("setor censitario com esse nome já existe.", "")
+      } else {
+        novo_setor.id = uuid.v4()
+        await this.setoresDisponiveis.setoresCensitarios.push(novo_setor)
+        await this.setorCensitario.salvarSetorOffline(novo_setor)
+        await this.setorCensitario.adicionarSetorCensitarios(this.setoresDisponiveis.setoresCensitarios)
+        await this.atualizarListaSetores()
+        location.reload()
+      }
+
+    }
+  }
+
+  async atualizarListaSetores() {
     this.area_nova = ""
-    this.setorCensitario.getSetoresCensitariosServidor()
-    this.ferramentas.presentLoading(" Aguarde ! Atualizando a pagina. ")
-    await setTimeout(async()=>{
+    await this.ferramentas.presentLoading(" Aguarde ! Atualizando a pagina. ")
+    await this.setorCensitario.getSetoresCensitariosServidor()
+    await setTimeout(async () => {
       this.getSetoresLocal();
-    }, 4000); 
+    }, 4000);
   }
 }

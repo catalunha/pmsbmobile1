@@ -16,23 +16,38 @@ import { Questionario, QuestionariosList } from '../../models/questionario.model
 import { FerramentasProvider } from '../../providers/ferramentas/ferramentas';
 
 // Outros Imports
-
+import { SetorCensitarioLocalService } from '../../providers/dataLocal/setor_censitario.service'
+import { SetorCensitarioService } from '../../providers/dataServer/setor_censitario.service';
+import { SetorCensitarioList } from '../../models/setor_censitario.model'
 @Component({
   selector: 'page-home',
   templateUrl: 'home.html',
-  providers: [QuestionarioIniciadoLocalService]
+  providers: [QuestionarioIniciadoLocalService, SetorCensitarioLocalService, SetorCensitarioService]
 })
 
 export class HomePage {
 
   questionariosIniciados: QuestionariosList;
+  setoresDisponiveis: SetorCensitarioList;
 
   constructor(public loadingCtrl: LoadingController,
     public navCtrl: NavController,
     public alertCtrl: AlertController,
     private questionarioIniciadoLocalService: QuestionarioIniciadoLocalService,
     public actionSheetCtrl: ActionSheetController,
-    public ferramentas: FerramentasProvider) {
+    public ferramentas: FerramentasProvider,
+    private setorCensitarioLocalService: SetorCensitarioLocalService) {
+    this.getSetoresLocal()
+  }
+
+  async getSetoresLocal() {
+    const sucess = setoresDisponiveis => {
+      this.setoresDisponiveis = setoresDisponiveis;
+    }
+    const error = error => console.log(error);
+    await this.setorCensitarioLocalService.getSetoresCensitariosDisponiveis()
+      .then(sucess)
+      .catch(error);
   }
 
   // Função para apagar todos os questionários iniciados, não está disponível para o usuário
@@ -60,7 +75,8 @@ export class HomePage {
         {
           text: 'Continuar',
           handler: () => {
-            this.navCtrl.push(PerguntaPage, { "questionarioPosicao": this.questionariosIniciados.questionarios.indexOf(questionario) })
+            let area =  this.getNomeArea(questionario.setor_censitario)
+            this.navCtrl.push(PerguntaPage, { "questionarioPosicao": this.questionariosIniciados.questionarios.indexOf(questionario), "area": area })
           }
         }, {
           text: 'Verificar Pendências',
@@ -141,7 +157,7 @@ export class HomePage {
           handler: data => {
             if (data.texto === "REMOVER") {
               this.questionarioIniciadoLocalService.removeQuestionarioIniciado(questionario, this.questionariosIniciados);
-            }else{
+            } else {
               this.ferramentas.presentToast("Ação Cancelada");
             }
           }
@@ -154,4 +170,16 @@ export class HomePage {
   $novaResolucaoQuestionario() {
     this.navCtrl.push(QuestionariosPage);
   }
+
+  getSetorSuperior(setor_superior) {
+    return this.setoresDisponiveis.setoresCensitarios.find(setor => { return setor.id == setor_superior })//.nome
+  }
+
+  getNomeArea(setor) {
+    if (setor.setor_superior) {
+      return this.getNomeArea(this.getSetorSuperior(setor.setor_superior)) + " -> " + setor.nome
+    }
+    return setor.nome
+  }
+
 }

@@ -14,6 +14,7 @@
 
   <div *ngIf="questionarioAtual">
     <h4 style="text-align: center">{{ questionarioAtual.nome }}</h4>
+    <p><strong>Área:</strong> {{ area }} </p>
     <hr>
     <div *ngIf="questionarioAtual.perguntas.length == 0" style="text-align: center">
       <br>
@@ -85,7 +86,7 @@
           </ion-list>
         </div>
         <div *ngIf="perguntaAtual.resposta">
-          <!-- <p> {{ perguntaAtual.resposta.file }} </p> -->
+           <h3> {{ filePath }} </h3>
           <ion-list>
             <button (click)="respostaArquivo(perguntaAtual)" ion-button full round>Alterar Arquivo Selecionado</button>
           </ion-list>
