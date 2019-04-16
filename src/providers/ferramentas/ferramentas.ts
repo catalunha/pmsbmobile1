@@ -7,8 +7,8 @@ import { LoadingController } from 'ionic-angular';
 export class FerramentasProvider {
 
   constructor(public alertCtrl: AlertController,
-              public toastCtrl: ToastController,
-              public loadingCtrl: LoadingController) {}
+    public toastCtrl: ToastController,
+    public loadingCtrl: LoadingController) { }
 
   showAlert(main_text: string, sub_text: string) {
     let alert = this.alertCtrl.create({

@@ -29,45 +29,46 @@ export class MyApp {
     private appVersion: AppVersion,
     private versaoApp_service: VersaoAppService) {
 
-    let usuario_atual = this.authenticarion_local.getAuthentication();
-    this.versionVerification = true;
-    if (this.versionVerification) {
-      if (usuario_atual) {
-        this.rootPage = TabsPage;
-      } else {
-        this.rootPage = LoginPage;
-      }
-    } else {
-      this.rootPage = AtualizacaoPage;
-    }
-
+    this.versaoApp_service.verificaVesaoOnline()
+    this.iniciar()
     platform.ready().then(() => {
       statusBar.styleDefault();
       splashScreen.hide();
     });
   }
 
-  public appAtualizationVerification() {
-    this.appVersion.getVersionNumber().then(
-      versao => {
-        this.appMyVersion = versao;
-        this.versaoApp_service.getVersaoApp({}).subscribe(
-          resposta => {
-            this.lastVersion = resposta;
-            if (this.lastVersion !== this.appMyVersion) {
-              return false;
-            } else {
-              return true;
-            }
-          },
-          error => {
-            this.ferramenta.showAlert("Falha na Verificação!", "Não foi possivel verificar a versão atual do aplicativo, por favor atualize!");
-            this.rootPage = AtualizacaoPage;
-          });
+
+  async iniciar() {
+    await this.versaoApp_service.verificaVesaoOnline()
+    await this.verificaVersaoAtualizadaNoStorage()
+  }
+
+  private async determinarRootPage() {
+    let usuario_atual = await this.authenticarion_local.getAuthentication();
+    if (usuario_atual) {
+      this.rootPage = TabsPage;
+    } else {
+      this.rootPage = LoginPage;
+    }
+  }
+
+  private async appAtualizationVerification() {
+    this.versaoApp_service.verificarVersaoEstaAtualizada().then((result) => {
+      this.ferramenta.showAlert(JSON.stringify(result), "")
+      this.versionVerification = result
+    })
+  }
+
+  private async verificaVersaoAtualizadaNoStorage() {
+    let versao: any = this.versaoApp_service.getVersaoStorage()
+    if (versao) {
+      if (versao.atualizado) {
+        this.determinarRootPage()
+      } else {
+        this.rootPage = AtualizacaoPage;
       }
-    ).catch(error => {
-      this.ferramenta.showAlert("Falha na Verificação!", "Não foi possivel verificar a versão atual do aplicativo, por favor atualize!");
-      this.rootPage = AtualizacaoPage;
-    });
+    } else {
+      this.determinarRootPage()
+    }
   }
 }

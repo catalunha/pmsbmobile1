@@ -19,7 +19,7 @@ import { LocalizacaoService } from '../../providers/dataServer/recursos/localiza
 import { SetorCensitarioLocalService } from '../../providers/dataLocal/setor_censitario.service'
 import { SetorCensitarioService } from '../../providers/dataServer/setor_censitario.service';
 import { SetorCensitarioList, SetorCensitario } from '../../models/setor_censitario.model';
-
+import { VersaoAppService } from '../../providers/dataServer/versao_app.service'
 @IonicPage()
 @Component({
   selector: 'page-concluido',
@@ -31,7 +31,7 @@ import { SetorCensitarioList, SetorCensitario } from '../../models/setor_censita
     LocalizacaoService, SetorCensitarioLocalService, SetorCensitarioService]
 })
 export class ConcluidoPage {
-
+  erro_final
   questionariosConcluidos: QuestionariosList;
 
   respostaPossivelEscolhaList: TipoPossivelEscolhaResposta[];
@@ -54,9 +54,10 @@ export class ConcluidoPage {
 
   private validarPostagem = true
   questionario_dict = {}
+
   err = error => console.error(error);
   erroAndFinishLoading = error => {
-    console.error(error);
+    this.loading.dismiss();
     this.loadingFinalizar(true);
   };
 
@@ -78,8 +79,10 @@ export class ConcluidoPage {
     private rValor: RespostaNumeroService,
     private localizacaoService: LocalizacaoService,
     private setorCensitarioLocalService: SetorCensitarioLocalService,
-    private setorCensitarioService: SetorCensitarioService) {
+    private versaoApp: VersaoAppService
+ ) {
     this.getSetoresLocal()
+    this.erro_final = false
   }
 
   // limpar() {
@@ -106,13 +109,13 @@ export class ConcluidoPage {
     ).catch(this.err);
   }
 
-  getSetoresLocal() {
+  async getSetoresLocal() {
     const sucess = setoresDisponiveis => {
       this.setoresDisponiveis = setoresDisponiveis;
-      console.log(this.setoresDisponiveis.setoresCensitarios);
+      this.setorCensitarioLocalService.getSetoresOffline().forEach((setor) => { this.setoresDisponiveis.setoresCensitarios.push(setor) })
     }
     const error = error => console.log(error);
-    this.setorCensitarioLocalService.getSetoresCensitariosDisponiveis()
+    await this.setorCensitarioLocalService.getSetoresCensitariosDisponiveis()
       .then(sucess)
       .catch(error);
   }
@@ -191,16 +194,16 @@ export class ConcluidoPage {
   }
 
   async sincronizar() {
-    let setores_offline = this.setorCensitarioLocalService.getSetoresOffline()
-    if (setores_offline) {
-      this.validarPostagem = true
-      await this.sincronizarSetoresOffline(setores_offline)
-    }
-    await this.sincronizarQuestionarioComcluidos()
+    this.versaoApp.getVersaoApp({}).subscribe(
+      async (resposta) => {
+        await this.verificarSetoresOffline()
+        await this.sincronizarQuestionarioComcluidos()
+      }, error => {
+        this.ferramenta.showAlert("Erro ao sincronizar ! ", "Verifique sua internet para sincronizar os dados.");
+      });
   }
 
   async sincronizarQuestionarioComcluidos() {
-    console.log("sincronizar Questionarios Comcluidos ")
     if (this.questionariosConcluidos && this.questionariosConcluidos.questionarios.length > 0) {
       await this.loadingIniciar();
       await this.verificarAtualizacoesQuestionarios();
@@ -209,40 +212,50 @@ export class ConcluidoPage {
     }
   }
 
-  async sincronizarSetoresOffline(setores_offline) {
-    console.log("sincronizar Setores Offline")
-    await setores_offline.forEach(setor => {
-      this.postarSetorOfflineTratandoErros(setor)
-    });
-    await this.apagaListaAreasOffline()
+  async verificarSetoresOffline() {
+    let setores_offline = await this.setorCensitarioLocalService.getSetoresOffline()
+    if (setores_offline.length > 0) {
+      this.validarPostagem = true
+      await this.sincronizarSetoresOffline(setores_offline).then(() => {
+        this.ferramenta.presentToast(" Áreas offline sincronizadas com sucesso !")
+      })
+    }
+  }
+
+  sincronizarSetoresOffline(setores_offline) {
+    return new Promise((resolve, reject) => {
+      setores_offline.forEach((val, key, arr) => {
+        this.postarSetorOfflineTratandoErros(val)
+        if (Object.is(arr.length - 1, key)) {
+          resolve(true)
+        }
+      });
+    })
   }
 
   async postarSetorOfflineTratandoErros(setor) {
-    this.setorCensitarioLocalService.postSetorSencitario(setor).then((result) => { console.log(result) })
-      .catch(err => this.tratarErroNomeJaExiste(err))
+    console.log(setor.nome)
+    this.setorCensitarioLocalService.postSetorSencitario(setor).then((result) => {
+      this.apagarSetorOffline(setor)
+    }).catch(err => this.tratarErroNomeJaExiste(err))
   }
 
   async tratarErroNomeJaExiste(error) {
     let error_recebido = error.error.json()
-    console.log(error_recebido)
     if (error_recebido.nome == "setor censitario com este nome já existe.") {
-      console.log(`O setor ${error.setor.nome} já existe no banco de dados com esse nome`)
       var _setor = error.setor
       _setor.nome = _setor.nome + '/'
-      console.log(_setor)
       this.postarSetorOfflineTratandoErros(_setor)
     }
   }
 
-  async apagaListaAreasOffline() {
-    console.log("Apagar Lista Offline")
-    if (this.validarPostagem) {
-      this.ferramenta.presentToast(" Áreas offline sincronizadas com sucesso !")
-      this.setorCensitarioLocalService.apagarListaOffline()
-    }
+  async apagarSetorOffline(setor) {
+    await this.setorCensitarioLocalService.apagarListaOfflinePeloId(setor.id)
+    await this.setorCensitarioLocalService.getSetoresCensitariosServidor()
   }
   // -----------------------------------------------------------------------//
   // PUSH
+
 
   private verificarAtualizacoesQuestionarios() {
     this.resposta_questionario_service.pushQuestionarios(this.questionariosConcluidos).then(
@@ -362,7 +375,8 @@ export class ConcluidoPage {
       },
       erro => {
         this.verificarSincronismo();
-        this.ferramenta.showAlert("Falha na sincronização de " + tipo, "Houve um erro inesperado nesta sincronização.");
+        this.erro_final = erro
+        this.ferramenta.showAlert("Falha na sincroniza\ção de " + tipo, "");
         console.log(erro);
       }
     );

@@ -1,0 +1,52 @@
+<!--
+  Generated template for the SelecionarAreaPage page.
+
+  See http://ionicframework.com/docs/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+
+
+<ion-header>
+  <ion-navbar color="danger">
+    <ion-title>Selecione a área.</ion-title>
+  </ion-navbar>
+</ion-header>
+
+
+<ion-content>
+  <div *ngIf="setoresDisponiveis">
+    <ion-list radio-group [(ngModel)]="area">
+        <ion-item *ngIf='nenhumVisible'>
+            <ion-label class="ion-text-justify">Nenhum</ion-label>
+            <ion-radio></ion-radio>
+          </ion-item>
+      <ion-item *ngFor="let area of setoresDisponiveis.setoresCensitarios">
+        <ion-label class="ajuste-texto">{{ getSetorNome(area) }}</ion-label>
+        <ion-radio value="{{ area.id }}"></ion-radio>
+      </ion-item>
+    </ion-list>
+  </div>
+
+</ion-content>
+
+
+<ion-footer>
+  <ion-toolbar style="text-align: center">
+    <ion-grid>
+      <ion-row>
+        <ion-col col>
+          <button (click)="cancelar()" class="botao" ion-button color="danger">
+            Cancelar
+          </button>
+        </ion-col>
+        <ion-col col>
+          <button (click)="adicionarNovaArea()" class="botao" ion-button color="primary">
+            Salvar
+          </button>
+        </ion-col>
+      </ion-row>
+
+    </ion-grid>
+  </ion-toolbar>
+
+</ion-footer>

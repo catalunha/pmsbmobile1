@@ -16,6 +16,7 @@
       <ion-card *ngFor="let area of setoresDisponiveis.setoresCensitarios">
         <ion-card-content class="ion-text-justify">
           {{ getSetorNome(area) }}
+          <p *ngIf='!area.criado_em'>Armazenado localmente</p>
         </ion-card-content>
       </ion-card>
       <!--

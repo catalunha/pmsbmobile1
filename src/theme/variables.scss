@@ -52,7 +52,7 @@ $colors: (
 // App Material Design Variables
 // --------------------------------------------------
 // Material Design only Sass variables can go here
-
+$alert-md-button-text-align	: justify;
 
 
 
@@ -61,7 +61,8 @@ $colors: (
 // Windows only Sass variables can go here
 
 
-
+$alert-min-width: 90%;
+$alert-max-height: 100%;
 
 // App Theme
 // --------------------------------------------------

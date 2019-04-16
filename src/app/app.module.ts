@@ -30,7 +30,8 @@ import { PendenciasPage } from '../pages/pendencias/pendencias';
 import { PerguntaPage } from '../pages/pergunta/pergunta';
 import { QuestionariosPage } from '../pages/questionarios/questionarios';
 import { VisualizarPage } from '../pages/visualizar/visualizar';
-
+import { SelecionarAreaPage } from '../pages/selecionar-area/selecionar-area'
+import { AtualizacaoPage } from '../pages/atualizacao/atualizacao'
 // Imports de Providers
 import { FerramentasProvider } from '../providers/ferramentas/ferramentas';
 import { AtualizaQuestionario } from '../providers/dataLocal/atualiza_questionario.service';
@@ -42,6 +43,7 @@ import { registerLocaleData } from '@angular/common';
 import { AppVersion } from '@ionic-native/app-version';
 import { VersaoAppService } from '../providers/dataServer/versao_app.service';
 import { AreaPage } from '../pages/area/area';
+import { Network } from '@ionic-native/network';
 
 registerLocaleData(localePtBr)
 
@@ -57,7 +59,9 @@ registerLocaleData(localePtBr)
     PerguntaPage,
     QuestionariosPage,
     VisualizarPage,
-    AreaPage
+    AreaPage,
+    SelecionarAreaPage,
+    AtualizacaoPage
   ],
   imports: [
     BrowserModule,
@@ -78,7 +82,9 @@ registerLocaleData(localePtBr)
     PerguntaPage,
     QuestionariosPage,
     VisualizarPage,
-    AreaPage
+    AreaPage,
+    SelecionarAreaPage,
+    AtualizacaoPage
   ],
   providers: [
     StatusBar,
@@ -96,7 +102,8 @@ registerLocaleData(localePtBr)
     FileTransfer,
     Base64,
     AppVersion,
-    VersaoAppService
+    VersaoAppService,
+    Network
   ]
 })
 export class AppModule { }

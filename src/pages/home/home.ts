@@ -37,12 +37,12 @@ export class HomePage {
     public actionSheetCtrl: ActionSheetController,
     public ferramentas: FerramentasProvider,
     private setorCensitarioLocalService: SetorCensitarioLocalService) {
-    this.getSetoresLocal()
   }
 
   async getSetoresLocal() {
     const sucess = setoresDisponiveis => {
       this.setoresDisponiveis = setoresDisponiveis;
+      this.setorCensitarioLocalService.getSetoresOffline().forEach((setor)=>{this.setoresDisponiveis.setoresCensitarios.push(setor)})
     }
     const error = error => console.log(error);
     await this.setorCensitarioLocalService.getSetoresCensitariosDisponiveis()
@@ -55,9 +55,14 @@ export class HomePage {
     this.questionarioIniciadoLocalService._removeQuestionarioIniciadosAll();
   }
 
+  ionViewWillEnter(){
+    this.getSetoresLocal()
+  }
+
   // Verifica os questionários iniciados sempre que a tela é chamada
-  ionViewDidEnter() {
-    this.getQuestionariosIniciados();
+  async ionViewDidEnter() {
+    await this.getSetoresLocal()
+    await this.getQuestionariosIniciados();
   }
 
   getQuestionariosIniciados() {
@@ -76,7 +81,7 @@ export class HomePage {
           text: 'Continuar',
           handler: () => {
             let area =  this.getNomeArea(questionario.setor_censitario)
-            this.navCtrl.push(PerguntaPage, { "questionarioPosicao": this.questionariosIniciados.questionarios.indexOf(questionario), "area": area })
+            this.navCtrl.push(PerguntaPage, { "questionarioPosicao": this.questionariosIniciados.questionarios.indexOf(questionario),"area":area})
           }
         }, {
           text: 'Verificar Pendências',

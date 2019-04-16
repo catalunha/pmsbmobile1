@@ -29,8 +29,8 @@ export class LoginPage {
     private authentication_local: AuthenticationServiceLocal,
     private ferramenta: FerramentasProvider,
     private appVersion: AppVersion) {
-      this.appVersionVerification()
-  }
+    this.appVersionVerification()
+    }
 
   public appVersionVerification() {
     this.appVersion.getVersionNumber().then(
@@ -59,7 +59,9 @@ export class LoginPage {
       error => {
         this.ferramenta.showAlert("Falha no login!", "Verifique Usuário e Senha");
         loading.dismiss();
+        console.log(" ERRO aqui ! ")
         console.error(JSON.stringify(error));
+
       }
     );
   }

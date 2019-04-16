@@ -1,3 +1,3 @@
 export class VersaoApp {
-    versaoMinima     : string;
+    versaoMinima : string;
 }

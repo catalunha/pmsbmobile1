@@ -12,6 +12,9 @@ import { SetorCensitarioLocalService } from '../../providers/dataLocal/setor_cen
 import { SetorCensitarioService } from '../../providers/dataServer/setor_censitario.service';
 import { FerramentasProvider } from '../../providers/ferramentas/ferramentas';
 
+import { ModalController } from 'ionic-angular';
+import { SelecionarAreaPage} from '../selecionar-area/selecionar-area'
+
 @IonicPage()
 @Component({
   selector: 'page-questionarios',
@@ -27,6 +30,7 @@ export class QuestionariosPage {
   setorCensitarioOpts: { title: string, subTitle: string };
 
   constructor(public navCtrl: NavController,
+    public modalCtrl: ModalController,
     public navParams: NavParams,
     private alertCtrl: AlertController,
     private questionarioDisponivelLocalService: QuestionarioDisponivelLocalService,
@@ -34,14 +38,13 @@ export class QuestionariosPage {
     private ferramentas: FerramentasProvider
   ) {
     this.getQuestionariosLocal();
-    this.getSetoresLocal()
     this.setorCensitarioOpts = {
       title: 'Setor Centitário',
       subTitle: 'Para poder iniciar um questionário é preciso selecionar um setor'
     };
   }
 
-  async ngOnInit() {
+  ngOnInit() {
     const atualizarQuestionarios = questionarioDisponivel => this.questionariosDisponiveis = questionarioDisponivel;
     this.questionarioDisponivelLocalService.eventoUpdateQuestionarioDisponivel
       .subscribe(atualizarQuestionarios);
@@ -49,6 +52,16 @@ export class QuestionariosPage {
     const atualizarSetores = setoresDisponiveis => this.setoresDisponiveis = setoresDisponiveis;
     this.setorCensitarioDisponivelService.eventoUpdateSetorCensitario
       .subscribe(atualizarSetores);
+  }
+
+  ionViewWillEnter(){
+    //this.getSetoresLocal()
+    this.getQuestionariosLocal();
+  }
+
+  async ionViewDidEnter() {
+    //await this.getQuestionariosLocal();
+    await this.getSetoresLocal() 
   }
 
   async getQuestionariosLocal() {
@@ -59,46 +72,35 @@ export class QuestionariosPage {
     await this.questionarioDisponivelLocalService.getQuestionariosDisponiveis()
       .then(sucess)
       .catch(error);
-    await console.log(this.questionariosDisponiveis.questionarios)
+    //await console.log(this.questionariosDisponiveis.questionarios)
   }
 
   async getSetoresLocal() {
-    const sucess = setoresDisponiveis => {
+    const sucess = async setoresDisponiveis => {
       this.setoresDisponiveis = setoresDisponiveis;
+      await this.setorCensitarioDisponivelService.getSetoresOffline().forEach((setor) => { this.setoresDisponiveis.setoresCensitarios.push(setor) })
     }
     const error = error => console.log(error);
     await this.setorCensitarioDisponivelService.getSetoresCensitariosDisponiveis()
       .then(sucess)
       .catch(error);
-    console.log(this.setoresDisponiveis.setoresCensitarios)
+    
   }
 
 
   async $escolherSetor(questionario) {
-    let alert = this.alertCtrl.create();
-    alert.setTitle(`Selecione abaixo a área.`);
 
-    this.setoresDisponiveis.setoresCensitarios.forEach((setor) => {
-      alert.addInput({
-        type: 'radio',
-        label: this.setorCensitarioDisponivelService.getSetorNome(setor, this.setoresDisponiveis),
-        value: setor.id,
-        checked: false
-      });
-    })
-
-    alert.addButton('Cancelar');
-    alert.addButton({
-      text: 'Salvar',
-      handler: (data) => {
-        this.setorCensitarioDisponivelService.getSetorPeloId(data).then(data => { questionario['setor_censitario'] = data }).then(()=>{
+    let profileModal = this.modalCtrl.create(SelecionarAreaPage,{nenhumVisible:false});
+    profileModal.present();
+    profileModal.onDidDismiss(async data => {
+      if(!data.cancelado){
+        console.log(data.area)
+        if(data.area){
+          questionario['setor_censitario'] = data.area
           this.$iniciarQuestionario(questionario)
-        })
-        console.log(questionario)
-        
+        }
       }
     });
-    alert.present();
   }
 
   $iniciarQuestionario(questionario: Questionario) {

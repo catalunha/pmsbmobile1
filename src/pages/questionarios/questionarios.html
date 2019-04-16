@@ -18,26 +18,20 @@
           <h2 class="card-title">
             {{ questionario.nome }}
           </h2>
-
-
-                      <hr>
+          <hr>
           <p>
             Última edição: {{ questionario.editado_em | date:'h:mm:ss a, d/M/yy' }}
           </p>
           <p>
             Criado em: {{ questionario.criado_em | date:'h:mm:ss a, d/M/yy' }}
           </p>
-                    <!--
-
-          <hr>
-            <ion-item>
-            <ion-select [(ngModel)]="questionario.setor_censitario" [selectOptions]="setorCensitarioOpts">
-              <ion-option *ngFor="let setor of setoresDisponiveis.setoresCensitarios" [value]="setor"> {{ setor.nome}} </ion-option>
-            </ion-select>
-          </ion-item>-->
         </ion-card-content>
       </ion-card>
     </div>
   </div>
+
+  <p>
+    
+  </p>
 
 </ion-content>

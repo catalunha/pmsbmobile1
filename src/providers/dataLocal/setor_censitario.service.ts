@@ -19,7 +19,7 @@ export class SetorCensitarioLocalService extends CoreServiceLocal {
     setorDisponivel
 
     error = error => {
-        this.ferramenta.presentToast("Não foi possível atualizar os dados.");
+        //this.ferramenta.presentToast("Não foi possível atualizar os dados.");
         console.error(error);
     }
 
@@ -41,9 +41,16 @@ export class SetorCensitarioLocalService extends CoreServiceLocal {
         return super.getStorage(this.key);
     }
 
+    apagarListaOfflinePeloId(id){
+       let setores_offline = this.getSetoresOffline().filter(setor=>{ return setor.id != id})
+       super.saveLocalStorage(`setores-offline`, JSON.stringify(setores_offline))
+       console.log({setores_offline:this.getSetoresOffline()})
+    }
 
     getSetoresOffline() {
-        return JSON.parse(super.getLocalStorage('setores-offline'))
+        let setores_offline = JSON.parse(super.getLocalStorage('setores-offline'))
+        if(setores_offline) {return setores_offline}
+        return []
     }
 
     salvarSetorOffline(setor) {
@@ -74,9 +81,9 @@ export class SetorCensitarioLocalService extends CoreServiceLocal {
     }
 
     async postSetorSencitario(setor) {
-
         return await new Promise((resolve, reject) => {
             this.setorCensitarioServer.setSetorCensitario(this.prepararSetorParaPostagem(setor)).subscribe((resposta) => {
+                this.getSetoresCensitariosServidor()
                 resolve(true)
             }, (erro) => {
                 reject({ error: erro, setor: setor })
@@ -84,15 +91,8 @@ export class SetorCensitarioLocalService extends CoreServiceLocal {
         })
     }
 
-    public getSetoresCensitariosServidor() {
+    async getSetoresCensitariosServidor() {
         this.setorCensitarioServer.getSetoresCensitarios({}).subscribe((setorCensitariosList) => {
-            var setores_offline = this.getSetoresOffline()
-            console.log(setores_offline)
-            if (setores_offline) {
-                setores_offline.forEach(setor => {
-                    setorCensitariosList.push(setor)
-                });
-            }
             this.adicionarSetorCensitarios(setorCensitariosList)
         }, this.error);
     }
@@ -127,6 +127,7 @@ export class SetorCensitarioLocalService extends CoreServiceLocal {
 
     async getSetorPeloId(id) {
         let setorDisponivel = await this.getSetoresCensitariosDisponiveis()
+        await this.getSetoresOffline().forEach( setor => { setorDisponivel.setoresCensitarios.push(setor)});
         return await setorDisponivel.setoresCensitarios.find((setor) => { return setor.id == id })
     }
 }
