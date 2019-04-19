@@ -11,10 +11,10 @@
     </div>
     <ion-card (click)="opcoesQuestionario(questionario)"
       *ngFor="let questionario of questionariosConcluidos.questionarios">
-      <ion-item>
+      <ion-item *ngIf='verificaSetor(questionario.setor_censitario)'>
         <h2 class="ion-text-justify" >{{ questionario.nome }}</h2>
         <hr>
-        <p class="ion-text-justify" *ngIf="questionario.setor_censitario"> <strong>Setor</strong>:
+        <p class="ion-text-justify" *ngIf="questionario.setor_censitario"> <strong>Área:</strong>:
           {{ getSetorNome(questionario.setor_censitario) }} </p>
         <p *ngIf="questionario.criado_em">Criado: {{ questionario.criado_em | date:'h:mm:ss a, d/M/yy' }}</p>
         <p *ngIf="questionario.editado_em"> Editado: {{ questionario.editado_em | date:'h:mm:ss a, d/M/yy' }}</p>

@@ -86,6 +86,7 @@ export class SetorCensitarioLocalService extends CoreServiceLocal {
                 this.getSetoresCensitariosServidor()
                 resolve(true)
             }, (erro) => {
+                console.log({post_setor:erro, setor:setor})
                 reject({ error: erro, setor: setor })
             })
         })

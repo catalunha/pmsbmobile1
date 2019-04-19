@@ -20,6 +20,9 @@ import { SetorCensitarioLocalService } from '../../providers/dataLocal/setor_cen
 import { SetorCensitarioService } from '../../providers/dataServer/setor_censitario.service';
 import { SetorCensitarioList, SetorCensitario } from '../../models/setor_censitario.model';
 import { VersaoAppService } from '../../providers/dataServer/versao_app.service'
+
+import { BackupProvider } from '../../providers/ferramentas/backup.service'
+
 @IonicPage()
 @Component({
   selector: 'page-concluido',
@@ -57,8 +60,9 @@ export class ConcluidoPage {
 
   err = error => console.error(error);
   erroAndFinishLoading = error => {
+    console.log(error)
     this.loading.dismiss();
-    this.loadingFinalizar(true);
+    this.loadingFinalizar(error, true);
   };
 
   constructor(public navCtrl: NavController,
@@ -79,8 +83,10 @@ export class ConcluidoPage {
     private rValor: RespostaNumeroService,
     private localizacaoService: LocalizacaoService,
     private setorCensitarioLocalService: SetorCensitarioLocalService,
-    private versaoApp: VersaoAppService
- ) {
+    private versaoApp: VersaoAppService,
+    private backupProvider: BackupProvider,
+    private authentication_local: AuthenticationServiceLocal,
+  ) {
     this.getSetoresLocal()
     this.erro_final = false
   }
@@ -134,7 +140,6 @@ export class ConcluidoPage {
       } else questionarioConcluido.questionario_sincronizado = false;
     }
   }
-
 
 
   opcoesQuestionario(questionario: Questionario) {
@@ -193,9 +198,12 @@ export class ConcluidoPage {
     this.questionario_concluido_service.removeQuestionarioConcluido(questionario, this.questionariosConcluidos);
   }
 
+  //  ######  Sincronização dos dados  #####
+
   async sincronizar() {
-    this.versaoApp.getVersaoApp({}).subscribe(
+    await this.versaoApp.getVersaoApp({}).subscribe(
       async (resposta) => {
+        await this.backupProvider.salvarBackup(this.questionariosConcluidos.questionarios, this.setoresDisponiveis.setoresCensitarios)
         await this.verificarSetoresOffline()
         await this.sincronizarQuestionarioComcluidos()
       }, error => {
@@ -203,12 +211,13 @@ export class ConcluidoPage {
       });
   }
 
+
   async sincronizarQuestionarioComcluidos() {
     if (this.questionariosConcluidos && this.questionariosConcluidos.questionarios.length > 0) {
       await this.loadingIniciar();
       await this.verificarAtualizacoesQuestionarios();
     } else {
-      this.ferramenta.presentToast("Nenhuma Questionário Para Sincronizar");
+      this.ferramenta.presentToast("Nenhum Questionário Para Sincronizar");
     }
   }
 
@@ -226,9 +235,7 @@ export class ConcluidoPage {
     return new Promise((resolve, reject) => {
       setores_offline.forEach((val, key, arr) => {
         this.postarSetorOfflineTratandoErros(val)
-        if (Object.is(arr.length - 1, key)) {
-          resolve(true)
-        }
+        if (Object.is(arr.length - 1, key)) { resolve(true) }
       });
     })
   }
@@ -258,7 +265,8 @@ export class ConcluidoPage {
 
 
   private verificarAtualizacoesQuestionarios() {
-    this.resposta_questionario_service.pushQuestionarios(this.questionariosConcluidos).then(
+    let user_local = this.authentication_local.getUserDataProcessado()
+    this.resposta_questionario_service.pushQuestionarios(this.questionariosConcluidos, user_local).then(
       respostaQuestionarioList => {
         if (this.listaVazia(respostaQuestionarioList)) this.salvarDataLocal();
         this.verificarAtualizacoesPerguntas();
@@ -276,9 +284,10 @@ export class ConcluidoPage {
   }
 
   private async verificarRespostas() {
+    let user_local = this.authentication_local.getUserDataProcessado()
     this.iniciarListas();
     for (const questionario of this.questionariosConcluidos.questionarios) {
-      // Popular Listas com as Respostas
+      questionario.usuario
       for (const pergunta of questionario.perguntas) {
         // Se a resposta_pergunta foi sincronizada mas a tipo_resposta não
         if (pergunta.resposta_pergunta && !pergunta.resposta_pergunta.tipo_respostaSincronizada) {
@@ -325,32 +334,37 @@ export class ConcluidoPage {
     if (this.listaVazia(this.respostaTextoList))
       this.postGenerico(this.rTexto, this.respostaTextoList, this.perguntaTextoList, "Textos");
     else
-      this.verificarSincronismo();
+      this.verificarSincronismo("Textos");
 
     if (this.listaVazia(this.respostaValorList))
       this.postGenerico(this.rValor, this.respostaValorList, this.perguntaValorList, "Valores");
     else
-      this.verificarSincronismo();
+      this.verificarSincronismo("Valores");
 
     if (this.listaVazia(this.respostaCoordenadaList)) {
       this.postGenerico(this.rLocalizacao, this.respostaCoordenadaList, this.perguntaCoordenadaList, "Coordenadas");
     } else
-      this.verificarSincronismo();
+      this.verificarSincronismo("Coordenadas");
+
+    console.log(this.rPossivelEscolha)
+    console.log(this.respostaPossivelEscolhaList)
+    console.log(this.perguntaPossivelEscolhaList)
+
 
     if (this.listaVazia(this.respostaPossivelEscolhaList))
       this.postGenerico(this.rPossivelEscolha, this.respostaPossivelEscolhaList, this.perguntaPossivelEscolhaList, "Possíveis Escolhas");
     else
-      this.verificarSincronismo();
+      this.verificarSincronismo("Possíveis Escolhas");
 
     if (this.listaVazia(this.respostaArquivoList))
       this.postGenerico(this.rArquivo, this.respostaArquivoList, this.perguntaArquivoList, "Arquivos");
     else
-      this.verificarSincronismo();
+      this.verificarSincronismo("Arquivos");
 
     if (this.listaVazia(this.respostaImagemList))
       this.postGenerico(this.rImagem, this.respostaImagemList, this.perguntaImagemList, "Imagens");
     else
-      this.verificarSincronismo();
+      this.verificarSincronismo("Imagens");
   }
 
   private criarLocalizacao(pergunta): any {
@@ -371,10 +385,10 @@ export class ConcluidoPage {
     tipoResposta.addRespostaAll(respostaList).subscribe(
       respostaListSincronizada => {
         this.salvarRespostaGenerico(respostaListSincronizada, perguntaList);
-        this.verificarSincronismo();
+        this.verificarSincronismo(tipo);
       },
       erro => {
-        this.verificarSincronismo();
+        this.verificarSincronismo(tipo);
         this.erro_final = erro
         this.ferramenta.showAlert("Falha na sincroniza\ção de " + tipo, "");
         console.log(erro);
@@ -427,10 +441,11 @@ export class ConcluidoPage {
     this.loading.present();
   }
 
-  private loadingFinalizar(error = false) {
+  private loadingFinalizar(tipo, error = false) {
     this.atualizarIcons();
     this.loading.dismiss();
-    error ? this.ferramenta.showAlert("Sincronização Falhou", "") :
+    this.backupProvider.enviarBackupPorEmail()
+    error ? this.ferramenta.showAlert("Sincronização Falhou", `Erro ao sincronizar : ${tipo}`) :
       this.ferramenta.showAlert("Sincronização Concluída", "Obrigado.");
   }
 
@@ -460,8 +475,8 @@ export class ConcluidoPage {
     this.perguntaValorList = new Array();
   }
 
-  private verificarSincronismo() {
-    this.contadorSincronismo < 5 ? this.contadorSincronismo++ : this.loadingFinalizar();
+  private verificarSincronismo(tipo) {
+    this.contadorSincronismo < 5 ? this.contadorSincronismo++ : this.loadingFinalizar(tipo);
   }
 
   getSetorSuperior(setor_superior) {
@@ -473,6 +488,12 @@ export class ConcluidoPage {
       return this.getSetorNome(this.getSetorSuperior(setor.setor_superior)) + " -> " + setor.nome
     }
     return setor.nome
+  }
+
+  verificaSetor(_setor){
+    let result = false
+    this.setoresDisponiveis.setoresCensitarios.forEach(setor => { if(setor.nome == _setor.nome){result=true} })
+    return result
   }
 
 }

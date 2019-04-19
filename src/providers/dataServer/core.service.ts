@@ -30,6 +30,16 @@ export class CoreService {
     }
   }
 
+  public atualizarHeaders(){
+    let usuario_atual_PMSB = JSON.parse(localStorage.getItem("usuario_atual_PMSB"));
+    if (usuario_atual_PMSB) {
+      this.headers = new Headers({
+        "Content-Type": "application/json",
+        Authorization: "Token " + usuario_atual_PMSB["token"]
+      });
+    }
+  }
+
   public post(instance: any): Observable<any> {
     return this.core_http
       .post(this.base_url + this.api_url, JSON.stringify(instance), {
@@ -38,6 +48,16 @@ export class CoreService {
       .map(this.extractData)
       .catch(this.handleError);
   }
+
+  public postUserInfo(instance: any,api_url ): Observable<any> {
+    return this.core_http
+      .post(this.base_url + api_url, JSON.stringify(instance), {
+        headers: this.headers
+      })
+      .map(this.extractData)
+      .catch(this.handleError);
+  }
+
 
   public all(params: any): Observable<any[]> {
     return this.core_http
@@ -58,6 +78,18 @@ export class CoreService {
       .map(this.extractData)
       .catch(this.handleError);
   }
+
+  public getByUrl( api_url): Observable<any> {
+    this.atualizarHeaders()
+    return this.core_http
+      .get(this.base_url + api_url, {
+        headers: this.headers,
+        search: {}
+      })
+      .map(this.extractData)
+      .catch(this.handleError);
+  }
+
 
   public add(instance: any): Observable<any> {
     return this.core_http

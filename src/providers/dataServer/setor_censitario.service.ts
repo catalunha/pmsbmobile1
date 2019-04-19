@@ -22,6 +22,7 @@ export class SetorCensitarioService extends CoreService{
     }
 
     public setSetorCensitario(params: any){
+      super.atualizarHeaders()
       return super.add(params)
     }
 

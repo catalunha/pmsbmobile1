@@ -20,6 +20,8 @@ export class VersaoAppService extends CoreService {
 
   constructor(private ferramentasProv: FerramentasProvider, private appVersion: AppVersion, private http: Http) {
     super(http, '/api/versao/app');
+    this.versaoAtualizada = false
+    this.verificaVesaoOnline()
   }
 
   public getVersaoApp(params: any): Observable<any> {
@@ -39,6 +41,7 @@ export class VersaoAppService extends CoreService {
     this.versaoAtualizada = false
     await this.getVersaoApp({}).subscribe(
       resposta => {
+        localStorage.removeItem('versao-aplicativo')
         this.verificaVersaoOffline(resposta)
       }, error => {
         this.verificaVersaoAtualizadaNoStorage()
@@ -68,15 +71,18 @@ export class VersaoAppService extends CoreService {
     }
   }
 
-  private async atualizaStorageVersao(versao, atualizado) {
+  public async atualizaStorageVersao(versao, atualizado) {
     let marcadorVersao = { versao: versao, atualizado: atualizado }
     localStorage.setItem("versao-aplicativo", JSON.stringify(marcadorVersao))
   }
 
   public getVersaoStorage() {
-    let versao_aplicativo = localStorage['versao-aplicativo']
-    if (versao_aplicativo) { return JSON.parse(versao_aplicativo) }
-    return null
+    let versao = localStorage.getItem('versao-aplicativo')
+    if(versao){
+      return JSON.parse(versao)
+    }else{
+      return null
+    }
   }
 
 }

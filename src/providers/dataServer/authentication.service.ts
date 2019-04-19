@@ -14,6 +14,11 @@ export class AuthenticationService extends CoreService {
     }
 
     login(instance: any): Observable<Usuario> {
+        
         return super.post(instance);
+    }
+
+    postUsuarioInformacoes(instance){
+        return super.postUserInfo(instance,"/api/auth/jwt/auth-token/")
     }
 }

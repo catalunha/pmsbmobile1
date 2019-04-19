@@ -6,6 +6,7 @@ import { AuthenticationService } from './../../providers/dataServer/authenticati
 import { FerramentasProvider } from './../../providers/ferramentas/ferramentas';
 import { AuthenticationServiceLocal } from './../../providers/dataLocal/authentication.service';
 import { UsuarioService } from './../../providers/dataServer/usuario.service';
+import * as JwtDecode from "jwt-decode";
 
 @IonicPage()
 @Component({
@@ -21,6 +22,7 @@ export class LoginPage {
     password: ""
   };
 
+  //helper = new JwtHelperService();
 
   constructor(public navCtrl: NavController,
     public navParams: NavParams,
@@ -42,30 +44,68 @@ export class LoginPage {
     });
   }
 
-  public login() {
+  public async login() {
 
-    let loading = this.loadingCtrl.create({
+    let loading = await this.loadingCtrl.create({
       content: 'Efetuando login...'
     });
-    loading.present();
-  
-    this.authentication_service.login(this.model).subscribe(
+    await loading.present();
+    await this.authentication_service.login(this.model).subscribe(
       resposta => {
-        this.authentication_local.saveAuthentication(resposta);
-        //this.ferramenta.showAlert("Bem vindo(a)!", "Login realizado com sucesso.");
-        this.navCtrl.setRoot(TabsPage);
-        loading.dismiss();
+        this.salvarInformacoesUsuario(resposta)
       },
       error => {
-        this.ferramenta.showAlert("Falha no login!", "Verifique Usuário e Senha");
+        this.ferramenta.showAlert("Falha no login !", "Verifique Usuário e Senha");
         loading.dismiss();
         console.log(" ERRO aqui ! ")
         console.error(JSON.stringify(error));
-
       }
     );
+    await loading.dismiss();
   }
 
+  salvarInformacoesUsuario(resposta_tk){
+    this.authentication_service.postUsuarioInformacoes(this.model).subscribe(
+      (resposta)=>{
+        this.authentication_local.saveAuthentication(resposta_tk);
+        this.salvarDadosDoUsuario(this.parseJwt(resposta.token))
+      },(erro)=>{
+        this.ferramenta.showAlert("Falha no login !", "Verifique Usuário e Senha");
+      })
+  }
 
+  salvarDadosDoUsuario(user){
+    this.authentication_service.atualizarHeaders()
+    this.authentication_service.getByUrl("/api/contas/users/"+ user.user_id).subscribe(resposta=>{
+      this.testaGrupoDoUsuario(resposta)
+    },erro=>{
+      this.ferramenta.showAlert("Falha no login !", "Verifique Usuário e Senha");
+    })
+  }
+
+  async testaGrupoDoUsuario(usuario){
+    if(this.verificarSeUsuarioPertenceGrupo(usuario,10)){
+      this.authentication_local.saveUserInfo(usuario)
+      this.navCtrl.setRoot(TabsPage);
+    }else{
+      this.ferramenta.showAlert("Acesso não autorizado no momento.","")
+    } 
+  }
+
+  public parseJwt(token) {
+    var base64Url = token.split('.')[1];
+    var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    return JSON.parse(window.atob(base64));
+  };
+
+  
+  public verificarSeUsuarioPertenceGrupo( user, group_id){
+    if(user['groups'].length <= 0){ return false }
+    var resultado = false
+    user['groups'].forEach(element => {
+      if(element == group_id){resultado=true}  
+    })
+    return resultado  
+  }
 
 }

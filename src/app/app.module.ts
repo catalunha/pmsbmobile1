@@ -44,6 +44,11 @@ import { AppVersion } from '@ionic-native/app-version';
 import { VersaoAppService } from '../providers/dataServer/versao_app.service';
 import { AreaPage } from '../pages/area/area';
 import { Network } from '@ionic-native/network';
+import { BackupProvider } from '../providers/ferramentas/backup.service';
+import { EmailComposer } from '@ionic-native/email-composer';
+
+import { AuthenticationServiceLocal } from './../providers/dataLocal/authentication.service';
+
 
 registerLocaleData(localePtBr)
 
@@ -103,7 +108,10 @@ registerLocaleData(localePtBr)
     Base64,
     AppVersion,
     VersaoAppService,
-    Network
+    Network,
+    EmailComposer,
+    BackupProvider,
+    AuthenticationServiceLocal
   ]
 })
 export class AppModule { }

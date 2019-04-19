@@ -30,7 +30,7 @@ export class RespostaPerguntaService extends CoreService {
                         this.salvarRespostaPerguntaSincronizada(questionarioList, respostaPerguntaList);
                         resolve(respostaPerguntaList);
                     },
-                    error => reject(error)
+                    error => console.log({errorpostagem:error})
                 );
             } else resolve([]);
         });

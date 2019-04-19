@@ -10,6 +10,7 @@ import 'rxjs/add/observable/throw';
 import { Questionario, QuestionariosList } from './../../models/questionario.model';
 import { RespostaQuestionario } from '../../models/resposta_questionario.model';
 
+
 @Injectable()
 export class RespostaQuestionarioService extends CoreService {
 
@@ -25,12 +26,12 @@ export class RespostaQuestionarioService extends CoreService {
         return super.add(respostaQuestionarioList);
     }
 
-    public pushQuestionarios(questionarioList: QuestionariosList) {
+    public pushQuestionarios(questionarioList: QuestionariosList, usuario) {
         // Verificando se existem questionários concluídos
         return new Promise((resolve, reject) => {
             if (this.listaVazia(questionarioList.questionarios)) {
                 // Recebendo a lista com os questionários que ainda não possuem uma "resposta_questionario"
-                var respostaQuestionarioList = this.converterRespostaQuestionario(questionarioList);
+                var respostaQuestionarioList = this.converterRespostaQuestionario(questionarioList, usuario);
                 if (this.listaVazia(respostaQuestionarioList)) {
                     // [Sincronização] Criando "resposta_questionario" para os questionários concluídos
                     this.addRespostaQuestionarioAll(respostaQuestionarioList).subscribe(
@@ -45,11 +46,14 @@ export class RespostaQuestionarioService extends CoreService {
         });
     }
 
-    private converterRespostaQuestionario(questionarioList: QuestionariosList): RespostaQuestionario[] {
+    private converterRespostaQuestionario(questionarioList: QuestionariosList, usuario): RespostaQuestionario[] {
+        
         var respostaQuestionarioList: RespostaQuestionario[] = new Array();
+        
         for (const questionario of questionarioList.questionarios) {
             if (!questionario.resposta_questionario) {
-                var respostaQuestionarioAux = new RespostaQuestionario(questionario.usuario, questionario);
+                //trocar usuario pelo usuario que responde
+                var respostaQuestionarioAux = new RespostaQuestionario(usuario, questionario);
                 respostaQuestionarioList.push(respostaQuestionarioAux);
             }
         }

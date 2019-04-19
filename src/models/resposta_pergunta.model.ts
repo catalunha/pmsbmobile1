@@ -7,7 +7,7 @@ export class RespostaPergunta {
     id: string;
     localizacao: Coordenada;
     resposta_questionario: string;
-    pergunta: string;
+    pergunta;
 
     // Após Resposta Sincronizada
     resposta: RespostaTipo;

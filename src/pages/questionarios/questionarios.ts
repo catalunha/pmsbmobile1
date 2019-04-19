@@ -105,8 +105,10 @@ export class QuestionariosPage {
 
   $iniciarQuestionario(questionario: Questionario) {
     if (questionario.setor_censitario) {
+      
       questionario.iniciado_em = new Date().toISOString();
       questionario.atualizado_em = new Date().toISOString();
+
       const confirm = this.alertCtrl.create({
         title: 'Confirmar Ação',
         message: `Você deseja iniciar uma nova resolução para este questionário na área ${this.setorCensitarioDisponivelService.getSetorNome(questionario.setor_censitario, this.setoresDisponiveis)}`,
