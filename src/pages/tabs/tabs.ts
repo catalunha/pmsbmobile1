@@ -5,10 +5,12 @@ import { HomePage } from '../home/home';
 // import { AboutPage } from '../about/about';
 import { ObservacaoPage } from '../observacoes/observacoes';
 import { AreaPage } from '../area/area';
+import { AuthenticationServiceLocal } from './../../providers/dataLocal/authentication.service';
 
 @Component({
   selector: 'page-tabs',
-  templateUrl: 'tabs.html'
+  templateUrl: 'tabs.html',
+  providers: [AuthenticationServiceLocal]
 })
 export class TabsPage {
   tab1Root = AreaPage;
@@ -16,7 +18,20 @@ export class TabsPage {
   tab3Root = ConcluidoPage;
   tab4Root = ObservacaoPage;
 
-  constructor() {
+  
+  username = ""
+  user
 
+  constructor(private authentication_local:AuthenticationServiceLocal) {
+    this.user = JSON.parse(this.authentication_local.getUserData())
+    this.username = this.user.last_name
+  }
+
+  ionViewWillEnter(){
+    this.username = this.user.last_name
+  }
+
+  ionViewDidEnter() {
+    this.username = this.user.last_name
   }
 }

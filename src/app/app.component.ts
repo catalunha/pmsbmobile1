@@ -21,6 +21,7 @@ export class MyApp {
   appMyVersion: string;
   lastVersion: string;
   versionVerification: any;
+
   constructor(platform: Platform,
     statusBar: StatusBar,
     splashScreen: SplashScreen,
@@ -36,6 +37,8 @@ export class MyApp {
   }
 
   private async verificaVersaoOnline() {
+    this.determinarRootPage()
+
     this.versaoApp_service.getVersaoApp({}).subscribe(
       resposta => {
         this.verificaVersaoOffline(resposta)
@@ -50,11 +53,11 @@ export class MyApp {
         if (versao_off == versao_on) {
           this.determinarRootPage()
           this.versaoApp_service.atualizaStorageVersao(versao_on, true)
-        }else{
+        } else {
           this.rootPage = AtualizacaoPage
           this.versaoApp_service.atualizaStorageVersao(versao_on, false)
         }
-      }).catch(error => {this.ferramenta.showAlert("Houve um erro na verificação de versão !", "")});
+      }).catch(error => { this.ferramenta.showAlert("Houve um erro na verificação de versão !", "") });
   }
 
   private async determinarRootPage() {
@@ -87,7 +90,7 @@ export class MyApp {
     if (versao) {
       if (versao.atualizado) {
         this.determinarRootPage()
-      }else{
+      } else {
         this.rootPage = AtualizacaoPage
       }
     } else {

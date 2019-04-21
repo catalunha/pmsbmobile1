@@ -15,25 +15,25 @@ import { LoginPage } from './../login/login';
 export class ObservacaoPage {
 
   listaObservacao: ObservacaoList;
-
+  
   constructor(public navCtrl: NavController,
     private authentication_local: AuthenticationServiceLocal,
     private app: App,
     private observacaoService: ObservacaoLocalService) {
-
   }
 
   ionViewDidEnter() {
     this.observacaoService.getListObservacoes().then(
       listaObservacao => {
-        if(listaObservacao){
+        if (listaObservacao) {
           this.listaObservacao = listaObservacao;
         }
       }
     ).catch();
   }
 
-  limpar(){
+
+  limpar() {
     this.observacaoService.removeObservacoesAll();
     this.listaObservacao = null;
   }

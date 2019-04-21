@@ -70,6 +70,7 @@ export class PerguntaPage {
       questionariosIniciados => {
         this.questionarioIniciadoList = questionariosIniciados;
         this.questionarioAtual = this.questionarioIniciadoList.questionarios[this.navParams.get("questionarioPosicao")];
+        console.log({questionarioAtual:this.questionarioAtual})
         var perguntaPosicao = this.navParams.get("perguntaPosicao");
         if (perguntaPosicao != null) {
           this.perguntaAtual = this.questionarioAtual.perguntas[perguntaPosicao];
@@ -91,10 +92,10 @@ export class PerguntaPage {
     this.perguntaAtual ? posicaoPerguntaAtual = this.questionarioAtual.perguntas.indexOf(this.perguntaAtual) + pular : posicaoPerguntaAtual = 0;
     if(posicaoPerguntaAtual > this.questionarioAtual.perguntas.length - 1) posicaoPerguntaAtual = 0;
     while (aux < this.questionarioAtual.perguntas.length) {
+      
       var perguntaAtualAux: any = this.questionarioAtual.perguntas[posicaoPerguntaAtual];
       if (!perguntaAtualAux.resposta) {
-        if (this.questionarioIniciadoLocalService.isPerguntaDisponivel(perguntaAtualAux,
-          this.questionarioIniciadoList)) {
+        if (this.questionarioIniciadoLocalService.isPerguntaDisponivel(perguntaAtualAux,this.questionarioIniciadoList)) {
           this.perguntaAtual = perguntaAtualAux;
           this.selecionarTipo();
           return;
@@ -268,7 +269,7 @@ export class PerguntaPage {
   }
 
   voltar() {
-    this.navCtrl.pop();
+    this.navCtrl.popToRoot();
   }
 
 }

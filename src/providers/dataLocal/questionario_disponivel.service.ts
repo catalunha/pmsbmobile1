@@ -16,7 +16,7 @@ export class QuestionarioDisponivelLocalService extends QuestionarioLocalService
     eventoUpdateQuestionarioDisponivel = new EventEmitter<QuestionariosList>();
     errorAlert = (error, msg) => {
         this.ferramenta.presentToast(`${msg} Não foi possível atualizar os dados.`);
-        console.error(error);
+        console.log(error);
     }
 
     private key: string = "questionarios_disponivel_PMSB";
@@ -72,6 +72,7 @@ export class QuestionarioDisponivelLocalService extends QuestionarioLocalService
     }
 
     private verificarAtualizacao(questionariosServidor: Questionario[], questionariosLocal: QuestionariosList) {
+        console.log("Atualizando Questionários: Disponíveis");
         this.avaliadorQuestionario.setObservacoes();
         var atualizaDisponiveis = this.avaliadorQuestionario.verificarListaQuestionarioPipeline(questionariosServidor, questionariosLocal);
         if (atualizaDisponiveis) {

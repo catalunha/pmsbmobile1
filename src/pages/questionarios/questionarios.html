@@ -8,10 +8,10 @@
 
 
 <ion-content>
-  <div *ngIf="!questionariosDisponiveis && !setoresDisponiveis" style="text-align: center">
+  <div *ngIf="marcador_carregando_dados" style="text-align: center">
     <h3 class="texto">Buscando Dados...</h3>
   </div>
-  <div *ngIf="questionariosDisponiveis && setoresDisponiveis">
+  <div *ngIf="!marcador_carregando_dados && questionariosDisponiveis && setoresDisponiveis">
     <div *ngFor="let questionario of questionariosDisponiveis.questionarios ">
       <ion-card>
         <ion-card-content (click)="$escolherSetor(questionario)">

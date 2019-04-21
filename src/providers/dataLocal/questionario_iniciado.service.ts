@@ -59,20 +59,26 @@ export class QuestionarioIniciadoLocalService extends QuestionarioLocalService {
 
         if (pergunta.escolharequisito_set) {
             pergunta.escolharequisito_set.forEach(escolhaRequisitoSet => {
-                var perguntaR = questionarioList.questionarios
-                    .find(q => q.id === escolhaRequisitoSet.questionario).perguntas
-                    .find(p => p.id === escolhaRequisitoSet.pergunta);
-                var resposta: any = perguntaR.resposta;
-                if (resposta) {
-                    if (perguntaR.multipla) {
-                        var escolhaMarcada = resposta.possiveis_escolhas_id.find(er => er.id === escolhaRequisitoSet.escolha_requisito);
-                        if (!escolhaMarcada) disponivel = false;
-                    }else{
-                        if(!(resposta.possivel_escolha_id.id === escolhaRequisitoSet.escolha_requisito)){
-                            disponivel = false;
+                try{
+                    var perguntaR = questionarioList.questionarios.find(q => q.id === escolhaRequisitoSet.questionario)//.perguntas.find(p => p.id === escolhaRequisitoSet.pergunta);
+                    var pergunta_perguntas = perguntaR.perguntas
+                    var pergunta_aux = pergunta_perguntas.find(p => p.id === escolhaRequisitoSet.pergunta);
+
+                    var resposta: any = pergunta_aux.resposta;
+                    if (resposta) {
+                        if (pergunta_aux.multipla) {
+                            var escolhaMarcada = resposta.possiveis_escolhas_id.find(er => er.id === escolhaRequisitoSet.escolha_requisito);
+                            if (!escolhaMarcada) disponivel = false;
+                        }else{
+                            if(!(resposta.possivel_escolha_id.id === escolhaRequisitoSet.escolha_requisito)){
+                                disponivel = false;
+                            }
                         }
-                    }
-                }else disponivel = false;
+                    }else disponivel = false;
+                }catch(err){
+                    console.log({perguntaR:questionarioList.questionarios})
+                }
+
             });
         }
         return disponivel;

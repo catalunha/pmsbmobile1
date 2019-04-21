@@ -13,7 +13,7 @@ import { SetorCensitarioService } from '../../providers/dataServer/setor_censita
 import { FerramentasProvider } from '../../providers/ferramentas/ferramentas';
 
 import { ModalController } from 'ionic-angular';
-import { SelecionarAreaPage} from '../selecionar-area/selecionar-area'
+import { SelecionarAreaPage } from '../selecionar-area/selecionar-area'
 
 @IonicPage()
 @Component({
@@ -28,6 +28,7 @@ export class QuestionariosPage {
   setoresDisponiveis: SetorCensitarioList;
 
   setorCensitarioOpts: { title: string, subTitle: string };
+  marcador_carregando_dados
 
   constructor(public navCtrl: NavController,
     public modalCtrl: ModalController,
@@ -44,24 +45,37 @@ export class QuestionariosPage {
     };
   }
 
-  ngOnInit() {
-    const atualizarQuestionarios = questionarioDisponivel => this.questionariosDisponiveis = questionarioDisponivel;
-    this.questionarioDisponivelLocalService.eventoUpdateQuestionarioDisponivel
-      .subscribe(atualizarQuestionarios);
+  async iniciar() {
+    const atualizarQuestionarios = questionarioDisponivel => {
+      this.questionariosDisponiveis = questionarioDisponivel;
+    }
+
+    await this.questionarioDisponivelLocalService.eventoUpdateQuestionarioDisponivel
+      .subscribe(atualizarQuestionarios)
 
     const atualizarSetores = setoresDisponiveis => this.setoresDisponiveis = setoresDisponiveis;
-    this.setorCensitarioDisponivelService.eventoUpdateSetorCensitario
+    await this.setorCensitarioDisponivelService.eventoUpdateSetorCensitario
       .subscribe(atualizarSetores);
+    console.log("iniciar")
   }
 
-  ionViewWillEnter(){
+  async ionViewWillEnter() {
     //this.getSetoresLocal()
-    this.getQuestionariosLocal();
+    this.marcador_carregando_dados = true
+    await this.iniciar()
+    await this.getQuestionariosLocal();
   }
 
   async ionViewDidEnter() {
     //await this.getQuestionariosLocal();
-    await this.getSetoresLocal() 
+    await this.getSetoresLocal()
+    await this.atualizarMarcador()
+  }
+
+  async atualizarMarcador() {
+    await setTimeout(async () => {
+      this.marcador_carregando_dados = false
+    }, 3000);
   }
 
   async getQuestionariosLocal() {
@@ -72,6 +86,7 @@ export class QuestionariosPage {
     await this.questionarioDisponivelLocalService.getQuestionariosDisponiveis()
       .then(sucess)
       .catch(error);
+    console.log("getQuestionariosLocal")
     //await console.log(this.questionariosDisponiveis.questionarios)
   }
 
@@ -84,18 +99,18 @@ export class QuestionariosPage {
     await this.setorCensitarioDisponivelService.getSetoresCensitariosDisponiveis()
       .then(sucess)
       .catch(error);
-    
+    console.log("setores offline")
   }
 
 
   async $escolherSetor(questionario) {
 
-    let profileModal = this.modalCtrl.create(SelecionarAreaPage,{nenhumVisible:false});
+    let profileModal = this.modalCtrl.create(SelecionarAreaPage, { nenhumVisible: false });
     profileModal.present();
     profileModal.onDidDismiss(async data => {
-      if(!data.cancelado){
+      if (!data.cancelado) {
         console.log(data.area)
-        if(data.area){
+        if (data.area) {
           questionario['setor_censitario'] = data.area
           this.$iniciarQuestionario(questionario)
         }
@@ -105,10 +120,8 @@ export class QuestionariosPage {
 
   $iniciarQuestionario(questionario: Questionario) {
     if (questionario.setor_censitario) {
-      
       questionario.iniciado_em = new Date().toISOString();
       questionario.atualizado_em = new Date().toISOString();
-
       const confirm = this.alertCtrl.create({
         title: 'Confirmar Ação',
         message: `Você deseja iniciar uma nova resolução para este questionário na área ${this.setorCensitarioDisponivelService.getSetorNome(questionario.setor_censitario, this.setoresDisponiveis)}`,

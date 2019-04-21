@@ -35,6 +35,7 @@ export class QuestionarioLocalService extends CoreServiceLocal {
             .then(
                 listaQuestionarios => {
                     if (!listaQuestionarios) listaQuestionarios = new QuestionariosList(key);
+                    console.log({questionario:questionario})
                     listaQuestionarios.questionarios.unshift(questionario);
                     super.saveStorage(listaQuestionarios.key, listaQuestionarios);
                 }

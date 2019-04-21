@@ -49,11 +49,11 @@ export class PendenciasPage {
   }
   
   selecionarPergunta(pergunta: Pergunta) {
-    this.navCtrl.setRoot(PerguntaPage, { "questionarioPosicao": this.navParams.get("questionarioPosicao"), "perguntaPosicao": this.questionarioAtual.perguntas.indexOf(pergunta) })
+    this.navCtrl.push(PerguntaPage, { "questionarioPosicao": this.navParams.get("questionarioPosicao"), "perguntaPosicao": this.questionarioAtual.perguntas.indexOf(pergunta) })
   }
 
   continuar() {
-    this.navCtrl.setRoot(PerguntaPage, { "questionarioPosicao": this.navParams.get("questionarioPosicao") })
+    this.navCtrl.push(PerguntaPage, { "questionarioPosicao": this.navParams.get("questionarioPosicao") })
   }
 
 }

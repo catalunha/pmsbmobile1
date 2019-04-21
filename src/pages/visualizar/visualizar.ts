@@ -27,6 +27,10 @@ export class VisualizarPage {
       this.recuperaQuestionario();
   }
 
+  ionViewWillEnter() {
+    this.recuperaQuestionario();
+  }
+
   recuperaQuestionario() {
     this.questionario_local.getQuestionariosIniciados().then(
       questionariosIniciados => {
