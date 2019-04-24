@@ -10,6 +10,7 @@ import 'rxjs/add/operator/catch';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/observable/throw';
 import { setRootDomAdapter } from '@angular/platform-browser/src/dom/dom_adapter';
+import { PopoverArrowDirection } from '@ionic-native/camera';
 
 
 @Injectable()
@@ -131,4 +132,67 @@ export class SetorCensitarioLocalService extends CoreServiceLocal {
         await this.getSetoresOffline().forEach( setor => { setorDisponivel.setoresCensitarios.push(setor)});
         return await setorDisponivel.setoresCensitarios.find((setor) => { return setor.id == id })
     }
+
+    salvarRefenciaQuestionarioComArea(area,questionario){
+        let areas_ref = super.getLocalStorage("referencia-questionario-area")
+        if(areas_ref){
+            areas_ref = JSON.parse(areas_ref)
+            if(!areas_ref[area.id]){
+                areas_ref[area.id] = []
+            }
+            areas_ref[area.id].push({id:questionario.id,status:'iniciado'})
+        }else{
+            areas_ref = {}
+            areas_ref[area.id] = []
+            areas_ref[area.id].push({id:questionario.id,status:'iniciado'})
+        }
+        super.saveLocalStorage("referencia-questionario-area",JSON.stringify(areas_ref))
+        //this.adicionarReferenciaQuestionarioArea(area,questionario.id)
+    }
+
+    verificaQuestionarioNaoExisteNaArea(area_id, questionario_id){
+        let areas_ref = super.getLocalStorage("referencia-questionario-area")
+        if(areas_ref){
+            areas_ref = JSON.parse(areas_ref)
+            if(areas_ref[area_id]){
+               return this.realizarBusca(areas_ref[area_id],questionario_id)
+            }else{ return true }
+        }else{ return true }
+    }
+
+    private realizarBusca(quest_list, id){
+        let quest_aux  = quest_list.find((quest)=>{ return quest.id == id})
+        if(quest_aux){ return false }
+        else { return true }
+    }
+
+    getListaRefenciaQuestionarioComArea(){
+        let areas_ref = super.getLocalStorage("referencia-questionario-area")
+        if(areas_ref){
+            return JSON.parse(areas_ref)
+        }else{
+            return {}
+        }
+    }
+
+    removerRefenciaQuestionarioComArea( area_id, questionario_id ){
+        //console.log({area_id:area_id})
+        //console.log({questionario_id:questionario_id})
+        let areas_ref = JSON.parse(super.getLocalStorage("referencia-questionario-area"))
+        areas_ref[area_id] = areas_ref[area_id].filter((quest)=>{ return quest.id != questionario_id})
+        //console.log(areas_ref)
+        super.saveLocalStorage("referencia-questionario-area",JSON.stringify(areas_ref))
+    }
+
+    atualizarRefenciaQuestionarioComArea(area_id, questionario_id){
+        let areas_ref = JSON.parse(super.getLocalStorage("referencia-questionario-area"))
+        areas_ref[area_id].forEach((quest)=>{ 
+            if(quest.id == questionario_id){
+                if(quest.status == 'iniciado'){quest.status = 'concluido'}
+                else{quest.status = 'iniciado'}
+            }
+        })
+        super.saveLocalStorage("referencia-questionario-area",JSON.stringify(areas_ref))
+    }
+
 }

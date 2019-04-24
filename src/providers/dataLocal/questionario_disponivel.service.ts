@@ -72,12 +72,11 @@ export class QuestionarioDisponivelLocalService extends QuestionarioLocalService
     }
 
     private verificarAtualizacao(questionariosServidor: Questionario[], questionariosLocal: QuestionariosList) {
-        console.log("Atualizando Questionários: Disponíveis");
+        console.log({QuestionarioList:questionariosServidor})
         this.avaliadorQuestionario.setObservacoes();
         var atualizaDisponiveis = this.avaliadorQuestionario.verificarListaQuestionarioPipeline(questionariosServidor, questionariosLocal);
         if (atualizaDisponiveis) {
             this.avaliadorQuestionario.salvarObservacoes();
-            console.log("Atualizando Questionários: Disponíveis");
             super.atualizarQuestionariosList(questionariosLocal)
                 .then(lista => {
                     this.atualizarViewQuestionarioDisponivel(lista);
@@ -85,7 +84,6 @@ export class QuestionarioDisponivelLocalService extends QuestionarioLocalService
                     this.getQuestionariosIniciados().then(
                         questionariosIniciados => {
                             if (questionariosIniciados) {
-                                console.log("Atualizando Questionários: Iniciados");
                                 var atualizaIniciados = this.avaliadorQuestionario.verificarQuestionarioEditado(questionariosServidor, questionariosIniciados);
                                 if (atualizaIniciados) super.atualizarQuestionariosList(questionariosIniciados);
                             }

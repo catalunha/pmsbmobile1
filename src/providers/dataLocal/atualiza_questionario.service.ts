@@ -45,7 +45,6 @@ export class AtualizaQuestionario extends ObservacaoLocalService {
                 atualizado = true;
             }
         }
-
         return (this.verificarQuestionarioAdicionado(questionariosServidor, questionariosLocal) || atualizado);
     }
 
@@ -59,7 +58,6 @@ export class AtualizaQuestionario extends ObservacaoLocalService {
                 this.novaObservacao("Atualização: Novo Questionário", "O questionário [" + questionario.nome + "] está disponível!");
             }
         }
-
         return (this.verificarQuestionarioEditado(questionariosServidor, questionariosLocal) || atualizado);
     }
 
@@ -67,7 +65,6 @@ export class AtualizaQuestionario extends ObservacaoLocalService {
         var atualizado = false;
         for (let questionarioLocal of questionariosLocal.questionarios) {
             var questionarioServidor = questionariosServidor.find(q => q.id === questionarioLocal.id);
-
             if (questionarioServidor) {
                 if (questionarioServidor.editado_em !== questionarioLocal.editado_em) {
                     //Este questionário foi editado
@@ -77,7 +74,6 @@ export class AtualizaQuestionario extends ObservacaoLocalService {
                 }
             }
         }
-
         return atualizado;
     }
 

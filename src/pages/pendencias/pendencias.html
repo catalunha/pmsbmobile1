@@ -6,6 +6,8 @@
 
 <ion-content padding>
   <div *ngIf="questionarioAtual">
+    <span> <strong>Área:</strong> {{ nomeArea() }} </span>
+    
     <h3>{{ questionarioAtual.nome }}</h3>
     <br>
     <ion-list *ngFor="let pergunta of questionarioAtual.perguntas">

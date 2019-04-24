@@ -1,24 +1,64 @@
 <ion-header>
-  <ion-toolbar color="primary">
+  <!--Ion toolbar é alterada de acordo com o que o marcador_selecao deixa visivel ( Lista setores ou questionarios iniciados ) -->
+  <ion-toolbar *ngIf="marcador_selecao" color="primary">
     <ion-title>Questionários Iniciados</ion-title>
   </ion-toolbar>
+
+  <ion-toolbar *ngIf="!marcador_selecao" color="primary">
+    <ion-title>{{ setor_censitario_atual.nome }}</ion-title>
+    <ion-buttons end>
+      <button (click)="voltarAListaAreas()" ion-button icon-only color="royal">
+        <ion-icon name="arrow-back">Voltar</ion-icon>
+      </button>
+    </ion-buttons>
+  </ion-toolbar>
+
 </ion-header>
 
 <ion-content>
-  <div *ngIf="questionariosIniciados">
-    <div *ngIf="questionariosIniciados.questionarios == 0" style="text-align: center">
-      <h3 class="texto">Nenhum Questionário Iniciado</h3>
+
+  <!-- Lista de setores onde há setores cadastrados -->
+
+  <div *ngIf='( setores_ref && marcador_selecao && questionariosIniciadosAux ) ; else else_lista_areas;'>
+    <div *ngFor="let setor of objectKeys(setores_ref)">
+      <ion-card *ngIf="getSetoresIniciadosList(setores_ref[setor]).length > 0" (click)="selecionarArea(setor)">
+        <ion-item>
+          <h2 class="card-title ion-text-justify">{{ getSetorNomeAreaId(setor) }}</h2>
+          <ion-avatar item-end>
+            <button ion-button clear large>
+              <ion-icon name="arrow-dropright-circle"></ion-icon>
+            </button>
+          </ion-avatar>
+
+          <p *ngIf="getSetoresIniciadosList(setores_ref[setor]).length > 1">
+            {{getSetoresIniciadosList(setores_ref[setor]).length}} questionarios</p>
+          <p *ngIf="getSetoresIniciadosList(setores_ref[setor]).length == 1">
+            {{getSetoresIniciadosList(setores_ref[setor]).length}} questionario</p>
+
+        </ion-item>
+      </ion-card>
     </div>
-    <ion-card (click)="$opcoesQuestionario(questionario)" *ngFor="let questionario of questionariosIniciados.questionarios">
+  </div>
+
+  <!--
+  <div *ngIf="marcador_selecao && verificaContagemQuestinariosValidos() && setores_ref " style="text-align: center">
+    <h3 class="texto">Nenhum Questionário Iniciado</h3>
+  </div>
+  -->
+
+  <!-- Lista de questionario iniciado de uma respectiva area -->
+
+  <div *ngIf="!marcador_selecao  && questionariosIniciados">
+    <ion-card (click)="$opcoesQuestionario(questionario)"
+      *ngFor="let questionario of questionariosIniciados.questionarios">
       <ion-card-content>
         <h2 class="card-title">
           {{ questionario.nome }}
-        </h2> 
+        </h2>
         <hr>
         <p *ngIf="setoresDisponiveis" class="ion-text-justify">
-          <strong>Área: </strong> {{ getNomeArea(questionario.setor_censitario) }}
+          <strong>Área: </strong> {{ setor_censitario_atual.nome }}
         </p>
-
         <p>
           Última atualização: {{ questionario.atualizado_em | date:'h:mm:ss a, d/M/yy' }}
         </p>
@@ -28,15 +68,4 @@
       </ion-card-content>
     </ion-card>
   </div>
-  <div *ngIf="!questionariosIniciados" style="text-align: center">
-    <h3 class="texto">Nenhum Questionário Iniciado</h3>
-  </div>
 </ion-content>
-
-<ion-footer>
-  <ion-toolbar style="text-align: center">
-    <button (click)="$novaResolucaoQuestionario()" class="botao" ion-button color="primary">
-      Iniciar Novo Questionário
-    </button>
-  </ion-toolbar>
-</ion-footer>

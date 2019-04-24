@@ -4,28 +4,18 @@
   </ion-navbar>
 </ion-header>
 
-<ion-content>
-  <!--
-  <ion-refresher (ionRefresh)="atualizarListaSetores()">
-    <ion-refresher-content></ion-refresher-content>
-  </ion-refresher>
-  -->
-  <div>
-    <ion-list *ngIf="setoresDisponiveis">
 
-      <ion-card *ngFor="let area of setoresDisponiveis.setoresCensitarios">
-        <ion-card-content class="ion-text-justify">
-          {{ getSetorNome(area) }}
-          <p *ngIf='!area.criado_em'>Armazenado localmente</p>
-        </ion-card-content>
-      </ion-card>
-      <!--
+<ion-content>
+  <div *ngIf="setoresDisponiveis">
+    <ion-list radio-group [(ngModel)]="area">
       <ion-item>
-        <ion-label>Áreas</ion-label>
-        <ion-select [(ngModel)]="areaSetorCensitario" multiple="true" cancelText="Nah" okText="Okay!">
-          <ion-option *ngFor="let area of setoresDisponiveis.setoresCensitarios" [value]="setor">{{area.nome}}</ion-option>
-        </ion-select>
-      </ion-item>-->
+        <ion-label class="ion-text-justify">Nenhum</ion-label>
+        <ion-radio></ion-radio>
+      </ion-item>
+      <ion-item *ngFor="let area of setoresDisponiveis.setoresCensitarios">
+        <ion-label class="ajuste-texto">{{ getSetorNome(area) }}  <p *ngIf='!area.criado_em'>Armazenado localmente</p> </ion-label>
+        <ion-radio value="{{ area.id }}"></ion-radio>
+      </ion-item>
     </ion-list>
   </div>
 </ion-content>

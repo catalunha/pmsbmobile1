@@ -6,6 +6,7 @@ import { HomePage } from '../home/home';
 import { ObservacaoPage } from '../observacoes/observacoes';
 import { AreaPage } from '../area/area';
 import { AuthenticationServiceLocal } from './../../providers/dataLocal/authentication.service';
+import { QuestionariosPage } from '../../pages/questionarios/questionarios'
 
 @Component({
   selector: 'page-tabs',
@@ -17,7 +18,7 @@ export class TabsPage {
   tab2Root = HomePage;
   tab3Root = ConcluidoPage;
   tab4Root = ObservacaoPage;
-
+  tab5Root = QuestionariosPage
   
   username = ""
   user

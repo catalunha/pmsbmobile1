@@ -8,7 +8,7 @@ import { AlertController, Platform } from 'ionic-angular';
 import * as uuid from 'uuid'
 import { CssSelector } from '@angular/compiler';
 import { ModalController } from 'ionic-angular';
-import { SelecionarAreaPage} from '../selecionar-area/selecionar-area'
+import { SelecionarAreaPage } from '../selecionar-area/selecionar-area'
 /**
  * Generated class for the AreaPage page.
  *
@@ -26,6 +26,7 @@ export class AreaPage {
   area_nova = ""
   setoresDisponiveis: SetorCensitarioList;
   setoresOffline: SetorCensitarioList;
+  area
 
   constructor(public navCtrl: NavController,
     public modalCtrl: ModalController,
@@ -34,13 +35,13 @@ export class AreaPage {
     public navParams: NavParams,
     public setorCensitario: SetorCensitarioLocalService,
     private ferramentas: FerramentasProvider) {
-    }
+  }
 
-  async ionViewDidLoad(){
+  async ionViewDidLoad() {
     this.ferramentas.presentLoading(" Aguarde ! Atualizando a pagina. ")
     await this.atualizarListaSetores()
     await this.getSetoresLocal();
-  } 
+  }
 
   ionViewDidEnter() {
     //this.atualizarListaSetores()
@@ -52,7 +53,7 @@ export class AreaPage {
     const sucess = setoresDisponiveis => {
       this.setoresDisponiveis = setoresDisponiveis;
       console.log(this.setoresDisponiveis.setoresCensitarios);
-      this.setorCensitario.getSetoresOffline().forEach((setor)=>{this.setoresDisponiveis.setoresCensitarios.push(setor)})
+      this.setorCensitario.getSetoresOffline().forEach((setor) => { this.setoresDisponiveis.setoresCensitarios.push(setor) })
     }
     const error = error => console.log(error);
     this.setorCensitario.getSetoresCensitariosDisponiveis()
@@ -70,11 +71,22 @@ export class AreaPage {
     }
     return setor.nome
   }
-  adicionarNovaArea(){
+
+  adicionarNovaArea() {
+    if (!this.area) {
+      this.ferramentas.showAlert('Para continuar escolha uma das áreas listadas.', "")
+      return
+    }
     if (this.area_nova.length == 0) {
       this.ferramentas.showAlert("O campo nova área está vazio !", "Insira um nome valido no campo nova área.")
       return 
     }
+
+    let area = this.setoresDisponiveis.setoresCensitarios.find(setor => { return setor.id == this.area })
+    if (area) { this.salvarNovaAreaServidor(area.id) } 
+    else { this.salvarNovaAreaServidor(null) }
+
+    /** 
     let profileModal = this.modalCtrl.create(SelecionarAreaPage, {nenhumVisible:true});
     profileModal.present();
     profileModal.onDidDismiss(data => {
@@ -86,10 +98,10 @@ export class AreaPage {
           this.salvarNovaAreaServidor(null)
         }
       }
-    });
-  
+    });*/
+
   }
- 
+
   gerarNovaInstanciaSetor(areasup) {
     let novo_setor = new SetorCensitario()
     novo_setor.fake_deletado = false
@@ -122,9 +134,7 @@ export class AreaPage {
         this.ferramentas.showAlert("setor censitario com esse nome já existe.", "")
       } else {
         novo_setor.id = uuid.v4()
-        //await this.setoresDisponiveis.setoresCensitarios.push(novo_setor)
         await this.setorCensitario.salvarSetorOffline(novo_setor)
-        //await this.setorCensitario.adicionarSetorCensitarios(this.setoresDisponiveis.setoresCensitarios)
         await this.ferramentas.presentLoading(" Aguarde ! Atualizando a pagina. ")
         await this.atualizarListaSetores()
       }

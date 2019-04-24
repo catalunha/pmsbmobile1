@@ -24,8 +24,11 @@ export class SelecionarAreaPage {
   area = null
   Nenhum = null
   nenhumVisible
-  constructor(private ferramentas: FerramentasProvider, public viewCtrl: ViewController,public navCtrl: NavController, public navParams: NavParams, public setorCensitario: SetorCensitarioLocalService) {
-  }
+
+  constructor(private ferramentas: FerramentasProvider, public viewCtrl: ViewController
+    ,public navCtrl: NavController
+    ,public navParams: NavParams
+    ,public setorCensitario: SetorCensitarioLocalService) {}
 
   async ionViewWillEnter(){
     this.nenhumVisible = this.navParams.get('nenhumVisible');

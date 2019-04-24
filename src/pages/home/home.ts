@@ -19,6 +19,7 @@ import { FerramentasProvider } from '../../providers/ferramentas/ferramentas';
 import { SetorCensitarioLocalService } from '../../providers/dataLocal/setor_censitario.service'
 import { SetorCensitarioService } from '../../providers/dataServer/setor_censitario.service';
 import { SetorCensitarioList } from '../../models/setor_censitario.model'
+
 @Component({
   selector: 'page-home',
   templateUrl: 'home.html',
@@ -27,8 +28,14 @@ import { SetorCensitarioList } from '../../models/setor_censitario.model'
 
 export class HomePage {
 
+  marcador_selecao = true
+  objectKeys = Object.keys;
   questionariosIniciados: QuestionariosList;
   setoresDisponiveis: SetorCensitarioList;
+  questionariosIniciadosAux: QuestionariosList
+  setor_censitario_atual
+  //Setores ref é uma estrutura de relação de area com os questionarios já respondidos
+  setores_ref
 
   constructor(public loadingCtrl: LoadingController,
     public navCtrl: NavController,
@@ -37,12 +44,13 @@ export class HomePage {
     public actionSheetCtrl: ActionSheetController,
     public ferramentas: FerramentasProvider,
     private setorCensitarioLocalService: SetorCensitarioLocalService) {
-  }
+      delete localStorage['setores_ref']
+    }
 
   async getSetoresLocal() {
     const sucess = setoresDisponiveis => {
       this.setoresDisponiveis = setoresDisponiveis;
-      this.setorCensitarioLocalService.getSetoresOffline().forEach((setor)=>{this.setoresDisponiveis.setoresCensitarios.push(setor)})
+      this.setorCensitarioLocalService.getSetoresOffline().forEach((setor) => { this.setoresDisponiveis.setoresCensitarios.push(setor) })
     }
     const error = error => console.log(error);
     await this.setorCensitarioLocalService.getSetoresCensitariosDisponiveis()
@@ -55,21 +63,37 @@ export class HomePage {
     this.questionarioIniciadoLocalService._removeQuestionarioIniciadosAll();
   }
 
-  ionViewWillEnter(){
+  ionViewWillEnter() {
     this.getSetoresLocal()
+    this.setores_ref = this.setorCensitarioLocalService.getListaRefenciaQuestionarioComArea()
   }
 
   // Verifica os questionários iniciados sempre que a tela é chamada
   async ionViewDidEnter() {
+    this.marcador_selecao = true
     await this.getSetoresLocal()
     await this.getQuestionariosIniciados();
+    await this.atualizarMarcadorRef()
   }
 
   getQuestionariosIniciados() {
-    const atribuicao = questionariosIniciadosLocalmente => this.questionariosIniciados = questionariosIniciadosLocalmente;
+    const atribuicao = questionariosIniciadosLocalmente => {
+      this.questionariosIniciadosAux = questionariosIniciadosLocalmente;
+      console.log(this.questionariosIniciadosAux)
+    }
     this.questionarioIniciadoLocalService.getQuestionariosIniciados()
       .then(atribuicao)
       .catch(error => console.error(error));
+  }
+
+  async atualizarSetoresRef(){
+    this.setores_ref = this.setorCensitarioLocalService.getListaRefenciaQuestionarioComArea()
+  }
+
+  async atualizarMarcadorRef(){
+    if(localStorage['setores_ref']){
+      await this.selecionarArea(JSON.parse(localStorage['setores_ref']).id)
+    }
   }
 
   // Barra de opções de ações para o usuário
@@ -80,18 +104,21 @@ export class HomePage {
         {
           text: 'Continuar',
           handler: () => {
-            let area =  this.getNomeArea(questionario.setor_censitario)
-            this.navCtrl.push(PerguntaPage, { "questionarioPosicao": this.questionariosIniciados.questionarios.indexOf(questionario),"area":area})
+            let area = this.getNomeArea(questionario.setor_censitario)
+            localStorage['setores_ref'] = JSON.stringify(this.setor_censitario_atual)
+            this.navCtrl.push(PerguntaPage, { "questionarioPosicao": this.questionariosIniciadosAux.questionarios.indexOf(questionario), "area": area })
           }
         }, {
           text: 'Verificar Pendências',
           handler: () => {
-            this.navCtrl.push(PendenciasPage, { "questionarioPosicao": this.questionariosIniciados.questionarios.indexOf(questionario) })
+            localStorage['setores_ref'] = JSON.stringify(this.setor_censitario_atual)
+            this.navCtrl.push(PendenciasPage, { "questionarioPosicao": this.questionariosIniciadosAux.questionarios.indexOf(questionario) })
           }
         }, {
           text: 'Visualizar Respostas',
           handler: () => {
-            this.navCtrl.push(VisualizarPage, { "questionarioPosicao": this.questionariosIniciados.questionarios.indexOf(questionario) })
+            localStorage['setores_ref'] = JSON.stringify(this.setor_censitario_atual)
+            this.navCtrl.push(VisualizarPage, { "questionarioPosicao": this.questionariosIniciadosAux.questionarios.indexOf(questionario) })
           }
         }, {
           text: 'Concluir',
@@ -131,7 +158,9 @@ export class HomePage {
         {
           text: 'Sim',
           handler: () => {
-            this.questionarioIniciadoLocalService.concluirQuestionarioIniciado(questionario, this.questionariosIniciados);
+            this.setorCensitarioLocalService.atualizarRefenciaQuestionarioComArea(questionario.setor_censitario.id, questionario.id)
+            this.questionarioIniciadoLocalService.concluirQuestionarioIniciado(questionario, this.questionariosIniciadosAux);
+            this.resetarPagina()
           }
         }
       ]
@@ -161,7 +190,9 @@ export class HomePage {
           text: 'Confirmar',
           handler: data => {
             if (data.texto === "REMOVER") {
-              this.questionarioIniciadoLocalService.removeQuestionarioIniciado(questionario, this.questionariosIniciados);
+              this.setorCensitarioLocalService.removerRefenciaQuestionarioComArea(questionario.setor_censitario.id, questionario.id)
+              this.questionarioIniciadoLocalService.removeQuestionarioIniciado(questionario, this.questionariosIniciadosAux);
+              this.resetarPagina()
             } else {
               this.ferramentas.presentToast("Ação Cancelada");
             }
@@ -170,6 +201,13 @@ export class HomePage {
       ]
     });
     prompt.present();
+  }
+
+  async resetarPagina(){
+    await this.atualizarSetoresRef()
+    let aux = await this.getSetoresIniciadosList(this.setores_ref[this.setor_censitario_atual.id])
+    if(aux.length < 1){ this.voltarAListaAreas() }
+    await this.ionViewDidEnter()
   }
 
   $novaResolucaoQuestionario() {
@@ -185,6 +223,47 @@ export class HomePage {
       return this.getNomeArea(this.getSetorSuperior(setor.setor_superior)) + " -> " + setor.nome
     }
     return setor.nome
+  }
+
+  getSetorNomeAreaId(id) {
+    let setor = this.setoresDisponiveis.setoresCensitarios.find(setor => { return setor.id == id })
+    return this.getNomeArea(setor)
+  }
+
+  async selecionarArea(setor) {
+    
+    this.questionariosIniciados = new QuestionariosList(this.questionariosIniciadosAux.key)
+    //this.questionariosIniciados.key = this.questionariosIniciadosAux.key
+    this.setor_censitario_atual = {id:setor,nome:this.getSetorNomeAreaId(setor)}
+    localStorage['setores_ref'] = JSON.stringify(this.setor_censitario_atual)
+
+    await this.setores_ref[setor].forEach((quest) => {
+      if(quest.status == 'iniciado'){
+        this.adicionarQuestionarioAListaLocal(quest)
+      }
+    })
+    await console.log({questionariosIniciados: this.questionariosIniciados})
+    this.marcador_selecao = false
+  }
+
+  adicionarQuestionarioAListaLocal(setor) {
+    let questionario:any = this.questionariosIniciadosAux.questionarios.find(
+      (quest) => {
+        return quest.id == setor.id
+      })
+    if (questionario) {
+      this.questionariosIniciados.questionarios.push(questionario)
+    }
+  }
+
+  voltarAListaAreas(){
+    delete localStorage['setores_ref']
+    this.marcador_selecao = true
+    this.ionViewDidEnter()
+  }
+
+  getSetoresIniciadosList(setores){
+    return setores.filter((quest)=>{return quest.status == "iniciado"})
   }
 
 }
