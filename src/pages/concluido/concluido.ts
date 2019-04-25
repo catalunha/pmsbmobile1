@@ -186,6 +186,7 @@ export class ConcluidoPage {
         {
           text: 'Sim',
           handler: () => {
+            this.setorCensitarioLocalService.atualizarRefenciaQuestionarioComArea(questionario.setor_censitario.id, questionario.id)
             this.questionario_concluido_service.editarQuestionarioConcluido(questionario, this.questionariosConcluidos);
           }
         }
@@ -201,6 +202,11 @@ export class ConcluidoPage {
   //  ######  Sincronização dos dados  #####
 
   async sincronizar() {
+    if(!this.questionariosConcluidos){ 
+      this.ferramenta.showAlert("Erro ! nenhum questionario está na lista de concluídos !","Crie novos questionarios e adicione na lista de concluídos.")
+      return
+    }
+
     await this.versaoApp.getVersaoApp({}).subscribe(
       async (resposta) => {
         await this.backupProvider.salvarBackup(this.questionariosConcluidos.questionarios, this.setoresDisponiveis.setoresCensitarios)
@@ -445,8 +451,9 @@ export class ConcluidoPage {
     this.atualizarIcons();
     this.loading.dismiss();
     this.backupProvider.enviarBackupPorEmail()
-    error ? this.ferramenta.showAlert("Sincronização Falhou", `Erro ao sincronizar : ${tipo}`) :
-      this.ferramenta.showAlert("Sincronização Concluída", "Obrigado.");
+
+    error ? this.ferramenta.showAlert("Sincronização Falhou", `Erro ao sincronizar : ${tipo.json()[0].non_field_errors}`)
+    : this.ferramenta.showAlert("Sincronização Concluída", "Obrigado.");
   }
 
   private listaVazia(array: any): boolean {

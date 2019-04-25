@@ -9,11 +9,14 @@ import { QuestionarioLocalService } from './questionario.service';
 import { QuestionarioService } from './../dataServer/questionario.service';
 import { AtualizaQuestionario } from './atualiza_questionario.service';
 import { FerramentasProvider } from './../ferramentas/ferramentas';
+import { resolve } from 'dns';
 
 @Injectable()
 export class QuestionarioDisponivelLocalService extends QuestionarioLocalService {
 
     eventoUpdateQuestionarioDisponivel = new EventEmitter<QuestionariosList>();
+    function_marcador
+    ref
     errorAlert = (error, msg) => {
         this.ferramenta.presentToast(`${msg} Não foi possível atualizar os dados.`);
         console.log(error);
@@ -27,7 +30,7 @@ export class QuestionarioDisponivelLocalService extends QuestionarioLocalService
         private avaliadorQuestionario: AtualizaQuestionario,
         private ferramenta: FerramentasProvider) {
         super(storage);
-        this.getQuestionariosServidor();
+        //this.getQuestionariosServidor();
         // this._removeQuestionarioDisponiveisAll(); // Comente esta linha
     }
 
@@ -57,9 +60,18 @@ export class QuestionarioDisponivelLocalService extends QuestionarioLocalService
         return super.getQuestionarios(this.secondKey);
     }
 
-    private getQuestionariosServidor() {
-        const sucess = questionariosList => this.verificarInicializacao(questionariosList);
-        this.questionarioServer.getQuestionarios({}).subscribe(sucess, error => this.errorAlert(error, "[ERRO 01]"));
+    getQuestionariosServidor() {
+        return new Promise(async (resolve, reject) => {
+            await console.log('getQuestionariosServidor')
+            let aux
+            const sucess =async questionariosList => {
+                questionariosList
+                await this.verificarInicializacao(questionariosList)
+                await resolve(questionariosList)
+            }
+            await this.questionarioServer.getQuestionarios({}).subscribe(sucess, error => this.errorAlert(error, "[ERRO 01]"));
+            await console.log("getQuestionariosServidor-FIM")
+        })
     }
 
     private verificarInicializacao(listaQuestionario: Questionario[]) {
@@ -72,7 +84,8 @@ export class QuestionarioDisponivelLocalService extends QuestionarioLocalService
     }
 
     private verificarAtualizacao(questionariosServidor: Questionario[], questionariosLocal: QuestionariosList) {
-        console.log({QuestionarioList:questionariosServidor})
+        console.log({ questionariosServidor: questionariosServidor })
+
         this.avaliadorQuestionario.setObservacoes();
         var atualizaDisponiveis = this.avaliadorQuestionario.verificarListaQuestionarioPipeline(questionariosServidor, questionariosLocal);
         if (atualizaDisponiveis) {
@@ -91,7 +104,7 @@ export class QuestionarioDisponivelLocalService extends QuestionarioLocalService
                     ).catch(error => this.errorAlert(error, "[ERRO 03]"));
                 })
                 .catch(error => this.errorAlert(error, "[ERRO 04]"));
-        }else{
+        } else {
             this.ferramenta.presentToast("Questionários Atualizados!");
         }
     }
@@ -106,4 +119,5 @@ export class QuestionarioDisponivelLocalService extends QuestionarioLocalService
         this.eventoUpdateQuestionarioDisponivel.emit(questionariosList);
         this.ferramenta.presentToast("Questionários Atualizados!");
     }
+
 }

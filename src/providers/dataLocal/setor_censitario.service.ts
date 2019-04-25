@@ -168,19 +168,13 @@ export class SetorCensitarioLocalService extends CoreServiceLocal {
 
     getListaRefenciaQuestionarioComArea(){
         let areas_ref = super.getLocalStorage("referencia-questionario-area")
-        if(areas_ref){
-            return JSON.parse(areas_ref)
-        }else{
-            return {}
-        }
+        if(areas_ref){ return JSON.parse(areas_ref) } 
+        else{ return {} }
     }
 
     removerRefenciaQuestionarioComArea( area_id, questionario_id ){
-        //console.log({area_id:area_id})
-        //console.log({questionario_id:questionario_id})
         let areas_ref = JSON.parse(super.getLocalStorage("referencia-questionario-area"))
         areas_ref[area_id] = areas_ref[area_id].filter((quest)=>{ return quest.id != questionario_id})
-        //console.log(areas_ref)
         super.saveLocalStorage("referencia-questionario-area",JSON.stringify(areas_ref))
     }
 

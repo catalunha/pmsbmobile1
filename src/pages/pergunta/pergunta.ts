@@ -167,9 +167,15 @@ export class PerguntaPage {
     var escolhaUnicaAux = new EscolhaUnica();
     escolhaUnicaAux.latitude = this.escolhaUnica.latitude;
     escolhaUnicaAux.longitude = this.escolhaUnica.longitude;
-    escolhaUnicaAux.possivel_escolha_id = pergunta.possiveis_escolhas.find(escolha => escolha.id === this.escolhaUnica.possivel_escolha_id);
-    pergunta.resposta = escolhaUnicaAux;
-    this.salvarPular();
+    let aux = pergunta.possiveis_escolhas.find(escolha => escolha.id === this.escolhaUnica.possivel_escolha_id);
+    if(aux){
+      escolhaUnicaAux.possivel_escolha_id = aux
+      pergunta.resposta = escolhaUnicaAux;
+      this.salvarPular();
+    }else{
+      this.ferramenta.presentToast("A pergunta deve ser respondida para salvar!")
+    }
+ 
   }
 
   respostaCoordenada(pergunta: any) {
@@ -196,7 +202,7 @@ export class PerguntaPage {
   }
 
   respostaTexto(pergunta: any) {
-    if (this.textoResposta.texto != "") {
+    if (this.textoResposta.texto.length > 0) {
       this.textoResposta.latitude = this.coordenadas.latitude;
       this.textoResposta.longitude = this.coordenadas.longitude;
       var textoAux = new TextoResposta();

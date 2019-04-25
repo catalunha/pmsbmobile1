@@ -67,7 +67,8 @@
         <ion-list>
           <ion-item>
             <ion-label floating>Resposta</ion-label>
-            <ion-textarea [(ngModel)]="textoResposta.texto" [ngModelOptions]="{standalone: true}" type="text"></ion-textarea>
+            <ion-textarea [(ngModel)]="textoResposta.texto" [ngModelOptions]="{standalone: true}" type="text">
+            </ion-textarea>
           </ion-item>
         </ion-list>
 
@@ -82,16 +83,18 @@
         <p>Tipo: Enviar Arquivo</p>
         <div *ngIf="!perguntaAtual.resposta">
           <ion-list>
-            <button (click)="respostaArquivo(perguntaAtual)" color="dark" ion-button full round>Selecionar Arquivo</button>
+            <button (click)="respostaArquivo(perguntaAtual)" color="dark" ion-button full round>Selecionar
+              Arquivo</button>
           </ion-list>
         </div>
         <div *ngIf="perguntaAtual.resposta">
-           <h3> {{ filePath }} </h3>
+          <h3> {{ filePath }} </h3>
           <ion-list>
             <button (click)="respostaArquivo(perguntaAtual)" ion-button full round>Alterar Arquivo Selecionado</button>
           </ion-list>
         </div>
-        <button *ngIf="!perguntaAtual.resposta" (click)="salvarPular()" ion-button full round disabled>Salvar Arquivo</button>
+        <button *ngIf="!perguntaAtual.resposta" (click)="salvarPular()" ion-button full round disabled>Salvar
+          Arquivo</button>
         <button *ngIf="perguntaAtual.resposta" (click)="salvarPular()" ion-button full round>Salvar Arquivo</button>
       </div>
 
@@ -149,7 +152,8 @@
           <p>Latitude: <a>{{ perguntaAtual.resposta.latitudeResposta }}</a></p>
           <p>Longitude: <a>{{ perguntaAtual.resposta.longitudeResposta }}</a></p>
           <button *ngIf="coordenadas.latitude == ''" disabled ion-button full>Atualizar Coordenada</button>
-          <button *ngIf="coordenadas.latitude != ''" (click)="respostaCoordenada(perguntaAtual)" ion-button full round>Atualizar
+          <button *ngIf="coordenadas.latitude != ''" (click)="respostaCoordenada(perguntaAtual)" ion-button full
+            round>Atualizar
             com nova
             Coordenada</button>
         </div>
@@ -169,7 +173,7 @@
   </div>
 </ion-content>
 
-<ion-footer >
+<ion-footer>
   <ion-toolbar>
     <button (click)="pular()" ion-button clear icon-right color="dark">
       Pular Esta Pergunta
