@@ -14,6 +14,13 @@ $app-direction: ltr;
 
 @import "ionic.globals";
 
+.ajuste-texto{
+  text-overflow: inherit;
+  white-space: normal;
+  text-align: justify;
+  text-justify: inter-word;
+  text-align: left;
+}
 
 // Shared Variables
 // --------------------------------------------------

@@ -1,38 +1,75 @@
 <ion-header>
-  <ion-navbar color="dark">
+
+  <!--Ion toolbar é alterada de acordo com o que o marcador_selecao deixa visivel ( Lista setores ou questionarios iniciados ) -->
+  <ion-toolbar *ngIf="marcador_selecao" color="dark">
     <ion-title>Questionários Concluídos</ion-title>
-  </ion-navbar>
+  </ion-toolbar>
+
+  <ion-toolbar *ngIf="!marcador_selecao" color="primary">
+    <ion-title>{{ setor_censitario_atual.nome }}</ion-title>
+    <ion-buttons end>
+      <button (click)="voltarAListaAreas()" ion-button icon-only color="royal">
+        <ion-icon name="arrow-back">Voltar</ion-icon>
+      </button>
+    </ion-buttons>
+  </ion-toolbar>
+
 </ion-header>
 
 <ion-content>
-  <div *ngIf="questionariosConcluidos && setoresDisponiveis">
-    <div *ngIf="questionariosConcluidos.questionarios == 0" style="text-align: center">
-      <h3 class="texto">Nenhum Questionário Concluído</h3>
+
+  <div *ngIf='setores_ref && marcador_selecao ; else content '>
+    <div *ngFor="let setor of objectKeys(setores_ref)">
+      <ion-card *ngIf="getSetoresIniciadosList(setores_ref[setor]).length > 0" (click)="selecionarArea(setor)">
+        <ion-item>
+          <h2 *ngIf="setoresDisponiveis" class="card-title ajuste-texto">{{ getSetorNomeAreaId(setor) }}</h2>
+          <ion-avatar item-end>
+            <button ion-button clear large>
+              <ion-icon name="arrow-dropright-circle"></ion-icon>
+            </button>
+          </ion-avatar>
+          <p>
+            <strong>Questionarios:</strong> {{getSetoresIniciadosList(setores_ref[setor]).length}}
+          </p>
+          <p>
+            <strong>Sincronizados:</strong> {{getSetoresSincronizadosList(setor).length}}
+          </p>
+        </ion-item>
+      </ion-card>
     </div>
-    <ion-card (click)="opcoesQuestionario(questionario)"
-      *ngFor="let questionario of questionariosConcluidos.questionarios">
-      <ion-item *ngIf='verificaSetor(questionario.setor_censitario)'>
-        <h2 class="ion-text-justify" >{{ questionario.nome }}</h2>
-        <hr>
-        <p class="ion-text-justify" *ngIf="questionario.setor_censitario"> <strong>Área:</strong>:
-          {{ getSetorNome(questionario.setor_censitario) }} </p>
-        <p *ngIf="questionario.criado_em">Criado: {{ questionario.criado_em | date:'h:mm:ss a, d/M/yy' }}</p>
-        <p *ngIf="questionario.editado_em"> Editado: {{ questionario.editado_em | date:'h:mm:ss a, d/M/yy' }}</p>
-        <p *ngIf="questionario.atualizado_em">Sincronizado: {{ questionario.atualizado_em | date:'h:mm:ss a, d/M/yy' }}
-        </p>
-        <ion-avatar item-end>
-          <img *ngIf="questionario.questionario_sincronizado" src="assets/imgs/outras/success.svg">
-          <img *ngIf="!questionario.questionario_sincronizado" src="assets/imgs/outras/icon_sync.png">
-        </ion-avatar>
-      </ion-item>
-    </ion-card>
-  </div>
-  <div *ngIf="!questionariosConcluidos" style="text-align: center">
-    <h3 class="texto">Nenhum Questionário Concluído</h3>
   </div>
 
-  <p *ngIf="erro_final" class="ajuste-texto">{{ erro_final }}</p>
+  <ng-template #content>
+    <div *ngIf="questionariosConcluidos && setoresDisponiveis">
+      <div *ngIf="questionariosConcluidos.questionarios == 0" style="text-align: center">
+        <h3 class="texto">Nenhum Questionário Concluído</h3>
+      </div>
+      <ion-card (click)="opcoesQuestionario(questionario)"
+        *ngFor="let questionario of questionariosConcluidosAux.questionarios">
+        <ion-item *ngIf='verificaSetor(questionario.setor_censitario)'>
+          <h2 class="ajuste-texto">{{ questionario.nome }}</h2>
+          <hr>
+          <p class="ajuste-texto" *ngIf="questionario.setor_censitario"> <strong>Área:</strong>:
+            {{ getSetorNome(questionario.setor_censitario) }} </p>
+          <p *ngIf="questionario.criado_em">Criado: {{ questionario.criado_em | date:'h:mm:ss a, d/M/yy' }}</p>
+          <p *ngIf="questionario.editado_em"> Editado: {{ questionario.editado_em | date:'h:mm:ss a, d/M/yy' }}</p>
+          <p *ngIf="questionario.atualizado_em">Sincronizado:
+            {{ questionario.atualizado_em | date:'h:mm:ss a, d/M/yy' }}
+          </p>
+          <ion-avatar item-end>
+            <img *ngIf="questionario.questionario_sincronizado" src="assets/imgs/outras/success.svg">
+            <img *ngIf="!questionario.questionario_sincronizado" src="assets/imgs/outras/icon_sync.png">
+          </ion-avatar>
+        </ion-item>
+      </ion-card>
+    </div>
+    <div *ngIf="!questionariosConcluidos" style="text-align: center">
+      <h3 class="texto">Nenhum Questionário Concluído</h3>
+    </div>
+  </ng-template>
+
 </ion-content>
+
 
 <ion-footer>
   <ion-toolbar style="text-align: center">

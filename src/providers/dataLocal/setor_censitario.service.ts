@@ -11,6 +11,7 @@ import 'rxjs/add/operator/map';
 import 'rxjs/add/observable/throw';
 import { setRootDomAdapter } from '@angular/platform-browser/src/dom/dom_adapter';
 import { PopoverArrowDirection } from '@ionic-native/camera';
+import { stat } from 'fs';
 
 
 @Injectable()
@@ -178,13 +179,18 @@ export class SetorCensitarioLocalService extends CoreServiceLocal {
         super.saveLocalStorage("referencia-questionario-area",JSON.stringify(areas_ref))
     }
 
-    atualizarRefenciaQuestionarioComArea(area_id, questionario_id){
+    atualizarRefenciaQuestionarioComArea(area_id, questionario_id, status){
+        
         let areas_ref = JSON.parse(super.getLocalStorage("referencia-questionario-area"))
-        areas_ref[area_id].forEach((quest)=>{ 
+        areas_ref[area_id].forEach((quest)=>{
             if(quest.id == questionario_id){
+                quest.status = status
+            }
+            /** 
+           if(quest.id == questionario_id){
                 if(quest.status == 'iniciado'){quest.status = 'concluido'}
                 else{quest.status = 'iniciado'}
-            }
+            }*/
         })
         super.saveLocalStorage("referencia-questionario-area",JSON.stringify(areas_ref))
     }

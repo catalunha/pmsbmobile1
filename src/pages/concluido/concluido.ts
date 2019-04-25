@@ -35,8 +35,10 @@ import { BackupProvider } from '../../providers/ferramentas/backup.service'
 })
 export class ConcluidoPage {
   erro_final
+  
   questionariosConcluidos: QuestionariosList;
-
+  questionariosConcluidosAux: QuestionariosList
+  
   respostaPossivelEscolhaList: TipoPossivelEscolhaResposta[];
   respostaTextoList: TipoTextoResposta[];
   respostaArquivoList: TipoArquivoResposta[];
@@ -57,6 +59,12 @@ export class ConcluidoPage {
 
   private validarPostagem = true
   questionario_dict = {}
+
+  //Setores ref é uma estrutura de relação de area com os questionarios já respondidos
+  setores_ref
+  setor_censitario_atual
+  marcador_selecao = true
+  objectKeys = Object.keys;
 
   err = error => console.error(error);
   erroAndFinishLoading = error => {
@@ -89,6 +97,7 @@ export class ConcluidoPage {
   ) {
     this.getSetoresLocal()
     this.erro_final = false
+    delete localStorage['setores_ref_con']
   }
 
   // limpar() {
@@ -96,12 +105,24 @@ export class ConcluidoPage {
   // }
 
   async ngOnInit() {
-    await this.getQuestionariosConcluidos()
     await this.getSetoresLocal()
+    await this.getQuestionariosConcluidos()
   }
 
   async ionViewDidEnter() {
+    this.marcador_selecao = true
+    this.setores_ref = this.setorCensitarioLocalService.getListaRefenciaQuestionarioComArea()
     await this.getQuestionariosConcluidos();
+    await this.atualizarMarcadorRef()
+  }
+
+  async atualizarMarcadorRef(){
+    if(localStorage['setores_ref_con']){
+      await this.selecionarArea(JSON.parse(localStorage['setores_ref_con']).id)
+    }else{
+      await this.getSetoresLocal()
+      await this.getQuestionariosConcluidos();
+    }
   }
 
   getQuestionariosConcluidos() {
@@ -140,7 +161,6 @@ export class ConcluidoPage {
       } else questionarioConcluido.questionario_sincronizado = false;
     }
   }
-
 
   opcoesQuestionario(questionario: Questionario) {
     const actionSheet = this.actionSheetCtrl.create({
@@ -186,13 +206,21 @@ export class ConcluidoPage {
         {
           text: 'Sim',
           handler: () => {
-            this.setorCensitarioLocalService.atualizarRefenciaQuestionarioComArea(questionario.setor_censitario.id, questionario.id)
+            this.setorCensitarioLocalService.atualizarRefenciaQuestionarioComArea(questionario.setor_censitario.id, questionario.id,'iniciado')
             this.questionario_concluido_service.editarQuestionarioConcluido(questionario, this.questionariosConcluidos);
+            this.resetarPagina()
           }
         }
       ]
     });
     confirm.present();
+  }
+  
+  async resetarPagina(){
+    this.setores_ref = await this.setorCensitarioLocalService.getListaRefenciaQuestionarioComArea()
+    let aux = await this.getSetoresIniciadosList(this.setores_ref[this.setor_censitario_atual.id])
+    if(aux.length < 1){ this.voltarAListaAreas() }
+    await this.ionViewDidEnter()
   }
 
   removerQuestionario(questionario: Questionario) {
@@ -269,7 +297,6 @@ export class ConcluidoPage {
   // -----------------------------------------------------------------------//
   // PUSH
 
-
   private verificarAtualizacoesQuestionarios() {
     let user_local = this.authentication_local.getUserDataProcessado()
     this.resposta_questionario_service.pushQuestionarios(this.questionariosConcluidos, user_local).then(
@@ -330,6 +357,8 @@ export class ConcluidoPage {
           }
         }
       }
+
+      this.setorCensitarioLocalService.atualizarRefenciaQuestionarioComArea(questionario.setor_censitario.id, questionario.id,'sincronizado')
     }
     this.sincronizarRespostas();
   }
@@ -351,11 +380,6 @@ export class ConcluidoPage {
       this.postGenerico(this.rLocalizacao, this.respostaCoordenadaList, this.perguntaCoordenadaList, "Coordenadas");
     } else
       this.verificarSincronismo("Coordenadas");
-
-    console.log(this.rPossivelEscolha)
-    console.log(this.respostaPossivelEscolhaList)
-    console.log(this.perguntaPossivelEscolhaList)
-
 
     if (this.listaVazia(this.respostaPossivelEscolhaList))
       this.postGenerico(this.rPossivelEscolha, this.respostaPossivelEscolhaList, this.perguntaPossivelEscolhaList, "Possíveis Escolhas");
@@ -501,6 +525,53 @@ export class ConcluidoPage {
     let result = false
     this.setoresDisponiveis.setoresCensitarios.forEach(setor => { if(setor.nome == _setor.nome){result=true} })
     return result
+  }
+
+  //--------------------------------Funcoes de troca de tela --------------------------------//
+
+
+  getSetorNomeAreaId(id) {
+    let setor = this.setoresDisponiveis.setoresCensitarios.find(setor => { return setor.id == id })
+    return this.getSetorNome(setor)
+  }
+
+  async selecionarArea(setor) {
+
+    console.log(setor)
+
+    this.questionariosConcluidosAux = null
+    
+    this.questionariosConcluidosAux = new QuestionariosList(this.questionariosConcluidos.key)
+    
+    this.setor_censitario_atual = await {id:setor,nome:this.getSetorNomeAreaId(setor)}
+    
+    localStorage['setores_ref_con'] = await JSON.stringify(this.setor_censitario_atual)
+    
+    await this.setores_ref[setor].forEach((quest) => {
+      if(quest.status == "concluido" || quest.status == "sincronizado"){ this.adicionarQuestionarioAListaLocal(quest,setor) }
+    })
+    this.marcador_selecao = false
+  }
+
+  async adicionarQuestionarioAListaLocal(quest_ref,setor) {
+    let questionario:any = this.questionariosConcluidos.questionarios.find(
+      (quest) => { return quest.id == quest_ref.id && quest.setor_censitario.id == setor})
+    console.log({questVaiInc:questionario})
+    if (questionario) { this.questionariosConcluidosAux.questionarios.push(questionario)}
+  }
+
+  voltarAListaAreas(){
+    delete localStorage['setores_ref_con']
+    this.marcador_selecao = true
+    this.ionViewDidEnter()
+  }
+
+  getSetoresIniciadosList(setores){
+    return setores.filter((quest)=>{return quest.status == "concluido" || quest.status == "sincronizado"  })
+  }
+
+  getSetoresSincronizadosList(setor){
+    return this.questionariosConcluidos.questionarios.filter((quest)=>{return quest.questionario_sincronizado && quest.setor_censitario.id == setor})
   }
 
 }

@@ -69,7 +69,10 @@ export class QuestionarioDisponivelLocalService extends QuestionarioLocalService
                 await this.verificarInicializacao(questionariosList)
                 await resolve(questionariosList)
             }
-            await this.questionarioServer.getQuestionarios({}).subscribe(sucess, error => this.errorAlert(error, "[ERRO 01]"));
+            await this.questionarioServer.getQuestionarios({}).subscribe(sucess, error => {
+                this.errorAlert(error, "[ERRO 01]")
+                reject(false)
+            });
             await console.log("getQuestionariosServidor-FIM")
         })
     }

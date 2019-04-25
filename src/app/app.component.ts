@@ -38,13 +38,13 @@ export class MyApp {
 
   private async verificaVersaoOnline() {
     this.determinarRootPage()
-    /** 
+    
     this.versaoApp_service.getVersaoApp({}).subscribe(
       resposta => {
         this.verificaVersaoOffline(resposta)
       }, error => {
         this.verificaVersaoAtualizadaNoStorage()
-      });*/
+      });
   }
 
   private verificaVersaoOffline(versao_on) {

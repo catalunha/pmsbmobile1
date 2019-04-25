@@ -33,6 +33,7 @@ export class HomePage {
   questionariosIniciados: QuestionariosList;
   setoresDisponiveis: SetorCensitarioList;
   questionariosIniciadosAux: QuestionariosList
+
   setor_censitario_atual
   //Setores ref é uma estrutura de relação de area com os questionarios já respondidos
   setores_ref
@@ -78,7 +79,6 @@ export class HomePage {
   getQuestionariosIniciados() {
     const atribuicao = questionariosIniciadosLocalmente => {
       this.questionariosIniciadosAux = questionariosIniciadosLocalmente;
-      console.log(this.questionariosIniciadosAux)
     }
     this.questionarioIniciadoLocalService.getQuestionariosIniciados()
       .then(atribuicao)
@@ -100,9 +100,6 @@ export class HomePage {
 
   // Barra de opções de ações para o usuário
   $opcoesQuestionario(questionario: Questionario) {
-    console.log({QUEST:questionario})
-    console.log({QUESTA:this.questionariosIniciadosAux.questionarios.indexOf(questionario)})
-    console.log({QUESTB:this.questionariosIniciadosAux.questionarios})
 
     const actionSheet = this.actionSheetCtrl.create({
       title: 'Opções de Questionário',
@@ -164,7 +161,7 @@ export class HomePage {
         {
           text: 'Sim',
           handler: () => {
-            this.setorCensitarioLocalService.atualizarRefenciaQuestionarioComArea(questionario.setor_censitario.id, questionario.id)
+            this.setorCensitarioLocalService.atualizarRefenciaQuestionarioComArea(questionario.setor_censitario.id, questionario.id,'concluido')
             this.questionarioIniciadoLocalService.concluirQuestionarioIniciado(questionario, this.questionariosIniciadosAux);
             this.resetarPagina()
           }
@@ -238,9 +235,9 @@ export class HomePage {
 
   async selecionarArea(setor) {
 
-    this.questionariosIniciados = null
+    this.questionariosIniciados = await null
     
-    this.questionariosIniciados = new QuestionariosList(this.questionariosIniciadosAux.key)
+    this.questionariosIniciados = await new QuestionariosList(this.questionariosIniciadosAux.key)
     
     this.setor_censitario_atual = await {id:setor,nome:this.getSetorNomeAreaId(setor)}
     
@@ -250,12 +247,15 @@ export class HomePage {
       if(quest.status == 'iniciado'){ this.adicionarQuestionarioAListaLocal(quest,setor) }
     })
     this.marcador_selecao = false
+    console.log(this.questionariosIniciados)
   }
 
   async adicionarQuestionarioAListaLocal(quest_ref,setor) {
+
     let questionario:any = this.questionariosIniciadosAux.questionarios.find(
-      (quest) => { return quest.id == quest_ref.id && quest.setor_censitario.id == setor})
-    console.log({questVaiInc:questionario})
+      (quest) => { return quest.id == quest_ref.id && quest.setor_censitario.id == setor}
+    )
+    console.log(questionario)
     if (questionario) { this.questionariosIniciados.questionarios.push(questionario)}
   }
 

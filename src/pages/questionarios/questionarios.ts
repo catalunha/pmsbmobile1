@@ -68,11 +68,12 @@ export class QuestionariosPage {
 
   async ionViewWillEnter() {
     this.marcador_carregando_dados = true
-    this.questionariosDisponiveis = null
-    this.setoresDisponiveis = null
     await this.questionarioDisponivelLocalService.getQuestionariosServidor().then((d)=>{
+      console.log(d)
       this.getQuestionariosLocal();
     }).catch(()=>{
+      this.getQuestionariosLocal();
+      this.ferramentas.presentToast("Você está offline lendo questionarios armazenados.")
       this.marcador_carregando_dados = false
     })
   }
@@ -84,6 +85,7 @@ export class QuestionariosPage {
   async getQuestionariosLocal() {
     console.log('getQuestionariosLocal')
     const sucess = questionariosDisponiveis => {
+      console.log(questionariosDisponiveis)
       this.questionariosDisponiveis = questionariosDisponiveis;
       this.marcador_carregando_dados = false
     }

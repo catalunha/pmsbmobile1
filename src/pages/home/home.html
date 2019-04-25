@@ -15,7 +15,7 @@
 
 </ion-header>
 
-<ion-content >
+<ion-content>
 
   <!-- Lista de setores onde há setores cadastrados -->
 
@@ -23,7 +23,7 @@
     <div *ngFor="let setor of objectKeys(setores_ref)">
       <ion-card *ngIf="getSetoresIniciadosList(setores_ref[setor]).length > 0" (click)="selecionarArea(setor)">
         <ion-item>
-          <h2 class="card-title ion-text-justify">{{ getSetorNomeAreaId(setor) }}</h2>
+          <h2 class="card-title ajuste-texto">{{ getSetorNomeAreaId(setor) }}</h2>
           <ion-avatar item-end>
             <button ion-button clear large>
               <ion-icon name="arrow-dropright-circle"></ion-icon>
@@ -62,10 +62,10 @@
     </div>
   </ng-template>
 
-    <!--
-  <div *ngIf="marcador_selecao && verificaContagemQuestinariosValidos() && setores_ref " style="text-align: center">
-    <h3 class="texto">Nenhum Questionário Iniciado</h3>
-  </div>
-  -->
+  <!--
+    <div *ngIf="marcador_selecao && verificaContagemQuestinariosValidos() && setores_ref " style="text-align: center">
+      <h3 class="texto">Nenhum Questionário Iniciado</h3>
+    </div>
+    -->
   <!-- Lista de questionario iniciado de uma respectiva area -->
 </ion-content>
