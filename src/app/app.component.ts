@@ -38,7 +38,6 @@ export class MyApp {
 
   private async verificaVersaoOnline() {
     this.determinarRootPage()
-    
     this.versaoApp_service.getVersaoApp({}).subscribe(
       resposta => {
         this.verificaVersaoOffline(resposta)
@@ -48,9 +47,13 @@ export class MyApp {
   }
 
   private verificaVersaoOffline(versao_on) {
+    console.log(versao_on)
     this.appVersion.getVersionNumber().then(
       versao_off => {
-        if (versao_off == versao_on) {
+        let voff = versao_off.replace(/[^0-9]/g,'')
+        let vo = versao_on.replace(/[^0-9]/g,'')
+        if (voff === vo) {
+          //this.ferramenta.showAlert("",`von = ${versao_on}, voff= ${versao_off}`)
           this.determinarRootPage()
           this.versaoApp_service.atualizaStorageVersao(versao_on, true)
         } else {

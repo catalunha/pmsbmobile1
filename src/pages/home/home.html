@@ -19,7 +19,7 @@
 
   <!-- Lista de setores onde há setores cadastrados -->
 
-  <div *ngIf='setores_ref && marcador_selecao && questionariosIniciadosAux ; else content '>
+  <div *ngIf='setores_ref && marcador_selecao && questionariosIniciadosAux && marcador_fim ; else content '>
     <div *ngFor="let setor of objectKeys(setores_ref)">
       <ion-card *ngIf="getSetoresIniciadosList(setores_ref[setor]).length > 0" (click)="selecionarArea(setor)">
         <ion-item>
@@ -40,7 +40,7 @@
   </div>
 
   <ng-template #content>
-    <div *ngIf="!marcador_selecao  && questionariosIniciados">
+    <div *ngIf="!marcador_selecao  && questionariosIniciados && marcador_fim">
       <ion-card (click)="$opcoesQuestionario(questionario)"
         *ngFor="let questionario of questionariosIniciados.questionarios">
         <ion-card-content>

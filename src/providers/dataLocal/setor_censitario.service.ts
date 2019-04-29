@@ -180,7 +180,7 @@ export class SetorCensitarioLocalService extends CoreServiceLocal {
     }
 
     atualizarRefenciaQuestionarioComArea(area_id, questionario_id, status){
-        
+        console.log('atualizarRefenciaQuestionarioComArea')
         let areas_ref = JSON.parse(super.getLocalStorage("referencia-questionario-area"))
         areas_ref[area_id].forEach((quest)=>{
             if(quest.id == questionario_id){

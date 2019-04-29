@@ -104,7 +104,28 @@ export class ConcluidoPage {
   //   this.questionario_concluido_service._removeQuestionarioConcluidosAll();
   // }
 
-  async ngOnInit() {
+  async ionViewWillEnter() {
+    await this.getSetoresLocal()
+    await this.getQuestionariosConcluidos().then(()=>{
+      this.iniciar()
+    })
+  }
+
+  async iniciar() {
+    this.marcador_selecao = true
+    this.setores_ref = await this.setorCensitarioLocalService.getListaRefenciaQuestionarioComArea()
+    await this.atualizarMarcadorRef()
+  }
+
+  async atualizarMarcadorRef(){
+    console.log('atualizarMarcadorRef-comcluidos')
+    if(localStorage['setores_ref_con']){
+      await this.selecionarArea(JSON.parse(localStorage['setores_ref_con']).id)
+    }
+  }
+
+  /**
+   *   async ionViewWillEnter() {
     await this.getSetoresLocal()
     await this.getQuestionariosConcluidos()
   }
@@ -117,23 +138,29 @@ export class ConcluidoPage {
   }
 
   async atualizarMarcadorRef(){
+    console.log('atualizarMarcadorRef-comcluidos')
     if(localStorage['setores_ref_con']){
       await this.selecionarArea(JSON.parse(localStorage['setores_ref_con']).id)
     }else{
-      await this.getSetoresLocal()
-      await this.getQuestionariosConcluidos();
+      //await this.getSetoresLocal()
+      //await this.getQuestionariosConcluidos();
     }
   }
+   * 
+   */
 
   getQuestionariosConcluidos() {
-    this.questionario_concluido_service.getQuestionariosConcluidos().then(
-      data => {
-        if (data) {
-          this.questionariosConcluidos = data
-          this.atualizarIcons();
+    return new Promise((resolve,reject)=>{
+      this.questionario_concluido_service.getQuestionariosConcluidos().then(
+        data => {
+          if (data) {
+            this.questionariosConcluidos = data
+            this.atualizarIcons();
+            resolve(data)
+          }
         }
-      }
-    ).catch(this.err);
+      ).catch(this.err);
+    })
   }
 
   async getSetoresLocal() {
@@ -205,10 +232,11 @@ export class ConcluidoPage {
         },
         {
           text: 'Sim',
-          handler: () => {
-            this.setorCensitarioLocalService.atualizarRefenciaQuestionarioComArea(questionario.setor_censitario.id, questionario.id,'iniciado')
-            this.questionario_concluido_service.editarQuestionarioConcluido(questionario, this.questionariosConcluidos);
-            this.resetarPagina()
+          handler:async () => {
+            await this.setorCensitarioLocalService.atualizarRefenciaQuestionarioComArea(questionario.setor_censitario.id, questionario.id,'iniciado')
+            await this.questionario_concluido_service.editarQuestionarioConcluido(questionario, this.questionariosConcluidos)
+            await this.ferramenta.presentLoading("Carregando...",3000)
+            await this.resetarPagina()
           }
         }
       ]
@@ -220,7 +248,7 @@ export class ConcluidoPage {
     this.setores_ref = await this.setorCensitarioLocalService.getListaRefenciaQuestionarioComArea()
     let aux = await this.getSetoresIniciadosList(this.setores_ref[this.setor_censitario_atual.id])
     if(aux.length < 1){ this.voltarAListaAreas() }
-    await this.ionViewDidEnter()
+    await this.iniciar()
   }
 
   removerQuestionario(questionario: Questionario) {
@@ -563,7 +591,7 @@ export class ConcluidoPage {
   voltarAListaAreas(){
     delete localStorage['setores_ref_con']
     this.marcador_selecao = true
-    this.ionViewDidEnter()
+    this.iniciar()
   }
 
   getSetoresIniciadosList(setores){

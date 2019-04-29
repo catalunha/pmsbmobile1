@@ -24,18 +24,24 @@ export class QuestionarioLocalService extends CoreServiceLocal {
         super.removeItemStorage(key);
     }
 
-    removerQuestionario(questionario: Questionario, questionariosList: QuestionariosList) {
-        if (removeArrayItem(questionariosList.questionarios, questionario)) {
-            this.atualizarQuestionariosList(questionariosList);
-        }
+    async removerQuestionario(questionario: Questionario, questionariosList: QuestionariosList) {
+        let aux = questionariosList
+        aux.questionarios = await questionariosList.questionarios.filter((quest)=>{ return quest !== questionario })
+        await this.atualizarQuestionariosList(aux);
+        
+        
+        //if (removeArrayItem(questionariosList.questionarios, questionario)) {
+        //    this.atualizarQuestionariosList(questionariosList);
+        //}
     }
 
     adicionarNovoQuestionario(questionario: Questionario, key: string): any {
+        //console.log({adicionarNovoQuestionario:questionario})
         super.getStorage(key)
             .then(
                 listaQuestionarios => {
-                    if (!listaQuestionarios) listaQuestionarios = new QuestionariosList(key);
-                    console.log({questionario:questionario})
+                    if (!listaQuestionarios) {listaQuestionarios = new QuestionariosList(key);}
+                    //console.log({questionario:questionario})
                     listaQuestionarios.questionarios.unshift(questionario);
                     super.saveStorage(listaQuestionarios.key, listaQuestionarios);
                 }
@@ -52,7 +58,7 @@ export class QuestionarioLocalService extends CoreServiceLocal {
         return super.getStorage(key);
     }
 
-    alternarLista(questionario: Questionario, questionarioList: QuestionariosList, to_key: string) {
+    alternarLista(questionario: Questionario, questionarioList: QuestionariosList, to_key: string) {    
         this.adicionarNovoQuestionario(questionario, to_key);
         this.removerQuestionario(questionario, questionarioList);
     }

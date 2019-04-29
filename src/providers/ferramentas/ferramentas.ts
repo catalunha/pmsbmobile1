@@ -27,10 +27,10 @@ export class FerramentasProvider {
     toast.present();
   }
 
-  presentLoading(texto: string) {
+  presentLoading(texto: string,time=4000) {
     const loader = this.loadingCtrl.create({
       content: texto,
-      duration: 4000
+      duration: time
     });
     loader.present();
   }

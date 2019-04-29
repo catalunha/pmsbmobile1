@@ -37,7 +37,8 @@ export class QuestionarioIniciadoLocalService extends QuestionarioLocalService {
         return super.getQuestionarios(this.key);
     }
 
-    concluirQuestionarioIniciado(questionario: Questionario, questionarioList: QuestionariosList) {
+    async concluirQuestionarioIniciado(questionario: Questionario, questionarioList: QuestionariosList) {
+        console.log('concluirQuestionarioIniciado')
         super.alternarLista(questionario, questionarioList, this.secondKey);
     }
 
