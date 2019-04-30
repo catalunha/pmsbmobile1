@@ -107,6 +107,9 @@ export class PerguntaPage {
     this.perguntaAtual = null;
   }
 
+  getIndex(){
+    return this.questionarioAtual.perguntas.indexOf(this.perguntaAtual) + 1
+  }
   private selecionarTipo() {
     this.multiplaEscolhaResposta = false;
     this.escolhaUnicaResposta = false;

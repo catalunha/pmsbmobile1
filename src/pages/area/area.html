@@ -12,10 +12,13 @@
         <ion-label class="ion-text-justify">Nenhum</ion-label>
         <ion-radio></ion-radio>
       </ion-item>
-      <ion-item *ngFor="let area of setoresDisponiveis.setoresCensitarios">
-        <ion-label class="ajuste-texto">{{ getSetorNome(area) }}  <p *ngIf='!area.criado_em'>Armazenado localmente</p> </ion-label>
-        <ion-radio value="{{ area.id }}"></ion-radio>
-      </ion-item>
+      <div *ngFor="let area of setoresDisponiveis.setoresCensitarios">
+        <ion-item *ngIf='area.ativo'>
+          <ion-label class="ajuste-texto">{{ getSetorNome(area) }} <p *ngIf='!area.criado_em'>Armazenado localmente</p>
+          </ion-label>
+          <ion-radio value="{{ area.id }}"></ion-radio>
+        </ion-item>
+      </div>
     </ion-list>
   </div>
 </ion-content>

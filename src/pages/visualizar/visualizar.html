@@ -4,9 +4,11 @@
   </ion-navbar>
 </ion-header>
 
-<ion-content class="fundo">
+<ion-content padding class="fundo">
   <div *ngIf="questionarioAtual">
+
     <h3 class="centro">{{ questionarioAtual.nome }}</h3>
+    <p><strong>Área:</strong> {{ area }} </p>
     <br>
     <hr>
     <br>
@@ -20,7 +22,7 @@
           <!-- ==================================================================== -->
           <!-- =====================    Escolha Única    ========================== -->
           <div *ngIf="!perguntaAtual.multipla">
-            <h5 class="centro">{{ perguntaAtual.texto }}</h5>
+            <h5 class="centro"><strong>{{ getIndex(perguntaAtual) }} - </strong>{{ perguntaAtual.texto }}</h5>
             <b>
               <p>Resposta:</p>
             </b>
@@ -30,7 +32,7 @@
           <!-- ==================================================================== -->
           <!-- ===================    Multipla Escolha    ========================= -->
           <div *ngIf="perguntaAtual.multipla">
-            <h5 class="centro">{{ perguntaAtual.texto }}</h5>
+            <h5 class="centro"><strong>{{ getIndex(perguntaAtual) }} - </strong>{{ perguntaAtual.texto }}</h5>
             <b>
               <p>Resposta:</p>
             </b>
@@ -45,7 +47,7 @@
         <!-- ==================================================================== -->
         <!-- ===========================    Texto    ============================ -->
         <div *ngIf="perguntaAtual.tipo == 1">
-          <h5 class="centro">{{ perguntaAtual.texto }}</h5>
+          <h5 class="centro"><strong>{{ getIndex(perguntaAtual) }} - </strong>{{ perguntaAtual.texto }}</h5>
           <b>
             <p>Resposta:</p>
           </b>
@@ -55,7 +57,7 @@
         <!-- ==================================================================== -->
         <!-- =====================  Selecionar Arquivo ========================== -->
         <div *ngIf="perguntaAtual.tipo == 2">
-          <h5 class="centro">{{ perguntaAtual.texto }}</h5>
+          <h5 class="centro"><strong>{{ getIndex(perguntaAtual) }} - </strong>{{ perguntaAtual.texto }}</h5>
           <b>
             <p>Resposta:</p>
           </b>
@@ -65,7 +67,7 @@
         <!-- ==================================================================== -->
         <!-- =====================  Selecionar Imagem  ========================== -->
         <div *ngIf="perguntaAtual.tipo == 3">
-          <h5 class="centro">{{ perguntaAtual.texto }}</h5>
+          <h5 class="centro"><strong>{{ getIndex(perguntaAtual) }} - </strong>{{ perguntaAtual.texto }}</h5>
           <b>
             <p>Resposta:</p>
           </b>
@@ -75,7 +77,7 @@
         <!-- ==================================================================== -->
         <!-- =====================   Coordenada GPS    ========================== -->
         <div *ngIf="perguntaAtual.tipo == 4">
-          <h5 class="centro">{{ perguntaAtual.texto }}</h5>
+          <h5 class="centro"><strong>{{ getIndex(perguntaAtual) }} - </strong>{{ perguntaAtual.texto }}</h5>
           <p>Coordenada Salva:</p>
             <p>Latitude: {{ perguntaAtual.resposta.latitudeResposta }} </p>
             <p>Longitude: {{ perguntaAtual.resposta.longitudeResposta }} </p>
@@ -84,10 +86,11 @@
         <!-- ==================================================================== -->
         <!-- =====================  Selecionar Valor   ========================== -->
         <div *ngIf="perguntaAtual.tipo == 5">
-          <h5 class="centro">{{ perguntaAtual.texto }}</h5>
+          <h5 class="centro"><strong>{{ getIndex(perguntaAtual) }} - </strong>{{ perguntaAtual.texto }}</h5>
           <p>Valor Informado: {{ perguntaAtual.resposta.numero }}</p>
         </div>
 
+        <!--
         <div>
           <b>
             <p class="centro">Localização no Momento da Resposta</p>
@@ -99,7 +102,7 @@
             <p>Latitude: {{ perguntaAtual.resposta.latitude }} </p>
             <p>Longitude: {{ perguntaAtual.resposta.longitude }} </p>
           </div>
-        </div>
+        </div>-->
 
       </div>
     </ion-list>

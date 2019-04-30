@@ -93,4 +93,8 @@ export class PendenciasPage {
     return setor.nome
   }
 
+  getIndex(quest){
+    return 1 + this.questionarioAtual.perguntas.indexOf(quest)
+  }
+
 }

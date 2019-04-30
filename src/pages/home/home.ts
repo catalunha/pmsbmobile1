@@ -129,8 +129,9 @@ export class HomePage {
         }, {
           text: 'Visualizar Respostas',
           handler: () => {
+            let area = this.getNomeArea(questionario.setor_censitario)
             localStorage['setores_ref'] = JSON.stringify(this.setor_censitario_atual)
-            this.navCtrl.push(VisualizarPage, { "questionarioPosicao": this.questionariosIniciadosAux.questionarios.indexOf(questionario) })
+            this.navCtrl.push(VisualizarPage, { "questionarioPosicao": this.questionariosIniciadosAux.questionarios.indexOf(questionario), "area-visualizar-page": area })
           }
         }, {
           text: 'Concluir',

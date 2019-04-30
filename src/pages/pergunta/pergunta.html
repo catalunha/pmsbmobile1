@@ -30,7 +30,7 @@
       <!-- =====================    Escolha Única    ========================== -->
       <div *ngIf="escolhaUnicaResposta">
         <br>
-        <h5>{{ perguntaAtual.texto }}</h5>
+        <h5>{{getIndex()}} - {{ perguntaAtual.texto }}</h5>
         <p>Tipo: Escolha Única</p>
         <ion-list radio-group [(ngModel)]="escolhaUnica.possivel_escolha_id">
           <ion-item *ngFor="let possivel_escolha of perguntaAtual.possiveis_escolhas">
@@ -45,7 +45,7 @@
       <!-- ===================    Multipla Escolha    ========================= -->
       <div *ngIf="multiplaEscolhaResposta">
         <br>
-        <h5>{{ perguntaAtual.texto }}</h5>
+        <h5>{{getIndex()}} -{{ perguntaAtual.texto }}</h5>
         <p>Tipo: Multipla Escolha</p>
 
         <ion-list>
@@ -62,7 +62,7 @@
       <!-- ===========================    Texto    ============================ -->
       <div *ngIf="entradaTextoResposta">
         <br>
-        <h5>{{ perguntaAtual.texto }}</h5>
+        <h5>{{getIndex()}} -{{ perguntaAtual.texto }}</h5>
         <p>Tipo: Resposta de Texto</p>
         <ion-list>
           <ion-item>
@@ -79,7 +79,7 @@
       <!-- =====================  Selecionar Arquivo ========================== -->
       <div *ngIf="selecionarArquivoResposta">
         <br>
-        <h5>{{ perguntaAtual.texto }}</h5>
+        <h5>{{getIndex()}} -{{ perguntaAtual.texto }}</h5>
         <p>Tipo: Enviar Arquivo</p>
         <div *ngIf="!perguntaAtual.resposta">
           <ion-list>
@@ -102,7 +102,7 @@
       <!-- =====================  Selecionar Imagem  ========================== -->
       <div *ngIf="selecionarImagemResposta">
         <br>
-        <h5>{{ perguntaAtual.texto }}</h5>
+        <h5>{{getIndex()}} -{{ perguntaAtual.texto }}</h5>
         <p>Tipo: Enviar Imagem</p>
         <div *ngIf="!perguntaAtual.resposta">
           <ion-list>
@@ -123,7 +123,7 @@
       <!-- =====================  Selecionar Valor   ========================== -->
       <div *ngIf="numeroResposta">
         <br>
-        <h5>{{ perguntaAtual.texto }}</h5>
+        <h5>{{getIndex()}} -{{ perguntaAtual.texto }}</h5>
         <!-- <p>Tipo: Enviar Valor</p> -->
 
         <p>Unidade de Medida: <a>{{ perguntaAtual.unidade_medida.nome }}</a></p>
@@ -143,8 +143,8 @@
       <div *ngIf="coordenadaResposta">
         <div *ngIf="!perguntaAtual.resposta">
           <br>
-          <button *ngIf="coordenadas.latitude == ''" disabled ion-button full>Salvar Coordenada</button>
-          <button *ngIf="coordenadas.latitude != ''" (click)="respostaCoordenada(perguntaAtual)" ion-button full>Salvar
+          <button *ngIf="coordenadas.latitude == ''" disabled ion-button full> {{ getIndex() }} - Salvar Coordenada</button>
+          <button *ngIf="coordenadas.latitude != ''" (click)="respostaCoordenada(perguntaAtual)" ion-button full>{{ getIndex() }} - Salvar
             Coordenada Atual</button>
         </div>
         <div *ngIf="perguntaAtual.resposta">

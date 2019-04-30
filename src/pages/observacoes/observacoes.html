@@ -3,7 +3,7 @@
     <ion-title >Observações </ion-title>
     <ion-buttons start>
       <button (click)="logout()" ion-button icon-only color="royal">
-        Logout
+        SAIR
       </button>
     </ion-buttons>
   </ion-toolbar>
@@ -13,6 +13,7 @@
   <div *ngIf="!listaObservacao" style="text-align: center">
     <h3 class="texto">Nenhuma Observação</h3>
   </div>
+  <!--
   <div *ngIf="listaObservacao">
     <ion-card *ngFor="let observacao of listaObservacao.lista">
       <ion-card-content>
@@ -25,5 +26,5 @@
         </p>
       </ion-card-content>
     </ion-card>
-  </div>
+  </div>-->
 </ion-content>

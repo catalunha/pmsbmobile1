@@ -20,7 +20,7 @@ export class VisualizarPage {
 
   questionarioIniciadoList: QuestionariosList;
   questionarioAtual: Questionario;
-
+  area
   constructor(public navCtrl: NavController,
     public navParams: NavParams,
     private questionario_local: QuestionarioIniciadoLocalService) {
@@ -28,6 +28,7 @@ export class VisualizarPage {
   }
 
   ionViewWillEnter() {
+    this.area = this.navParams.get("area-visualizar-page")
     this.recuperaQuestionario();
   }
 
@@ -43,6 +44,10 @@ export class VisualizarPage {
         console.log(error);
       }
     );
+  }
+
+  getIndex(quest){
+    return 1 + this.questionarioAtual.perguntas.indexOf(quest)
   }
 
 }
