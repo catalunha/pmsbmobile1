@@ -4,7 +4,6 @@
   </ion-navbar>
 </ion-header>
 
-
 <ion-content>
   <div *ngIf="setoresDisponiveis">
     <ion-list radio-group [(ngModel)]="area">
@@ -13,7 +12,7 @@
         <ion-radio></ion-radio>
       </ion-item>
       <div *ngFor="let area of setoresDisponiveis.setoresCensitarios">
-        <ion-item *ngIf='area.ativo'>
+        <ion-item *ngIf='area.ativo || !area.criado_em'>
           <ion-label class="ajuste-texto">{{ getSetorNome(area) }} <p *ngIf='!area.criado_em'>Armazenado localmente</p>
           </ion-label>
           <ion-radio value="{{ area.id }}"></ion-radio>

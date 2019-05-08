@@ -1,30 +1,43 @@
 <ion-header>
   <ion-toolbar color="secondary">
-    <ion-title >Observações </ion-title>
-    <ion-buttons start>
-      <button (click)="logout()" ion-button icon-only color="royal">
-        SAIR
-      </button>
-    </ion-buttons>
+    <ion-title>{{ username }} </ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content >
-  <div *ngIf="!listaObservacao" style="text-align: center">
-    <h3 class="texto">Nenhuma Observação</h3>
-  </div>
-  <!--
-  <div *ngIf="listaObservacao">
+<ion-content>
+
+  <ion-row style="padding-top:1%">
+    <button ion-button full large (click)="logout()" class="botao" color="danger">
+      Sair
+    </button>
+  </ion-row>
+
+  <ion-row style="padding-top:1%">
+    <button ion-button full large (click)='gerarBackup()' class="botao" color="primary">
+      Enviar respostas por email
+    </button>
+  </ion-row>
+
+  <hr>
+  <ion-list *ngIf="listaObservacao">
+    <ion-list-header>
+      Observações
+    </ion-list-header>
+
     <ion-card *ngFor="let observacao of listaObservacao.lista">
       <ion-card-content>
         <h2 class="card-title">
           {{observacao.titulo}}
         </h2>
         <hr>
-        <p>
-          {{observacao.texto}}
-        </p>
+        <p> {{observacao.texto}}</p>
       </ion-card-content>
     </ion-card>
-  </div>-->
+
+  </ion-list>
+
+  <div *ngIf="!listaObservacao" style="text-align: center">
+    <h3 class="texto">Nenhuma Observação</h3>
+  </div>
+
 </ion-content>

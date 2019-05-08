@@ -33,10 +33,11 @@ export class SelecionarAreaPage {
   async ionViewWillEnter(){
     this.nenhumVisible = this.navParams.get('nenhumVisible');
     this.setoresDisponiveis = null
-    const sucess = setoresDisponiveis => {
-      this.setoresDisponiveis = setoresDisponiveis;
-      console.log(this.setoresDisponiveis.setoresCensitarios);
-      this.setorCensitario.getSetoresOffline().forEach((setor)=>{this.setoresDisponiveis.setoresCensitarios.push(setor)})
+    const sucess = async setoresDisponiveis => {
+      this.setoresDisponiveis = await setoresDisponiveis;
+      await this.setorCensitario.getSetoresOffline().forEach((setor)=>{this.setoresDisponiveis.setoresCensitarios.push(setor)})
+      await this.setoresDisponiveis.setoresCensitarios.forEach((setor)=>{setor['_nome']=this.getSetorNome(setor)})
+      await this.ordenarSetores()
     }
     const error = error => console.log(error);
     this.setorCensitario.getSetoresCensitariosDisponiveis()
@@ -62,6 +63,16 @@ export class SelecionarAreaPage {
     }
     let area = this.setoresDisponiveis.setoresCensitarios.find(setor=>{return setor.id == this.area})
     this.viewCtrl.dismiss({ area: area, cancelado:false});
+  }
+
+  async ordenarSetores() {
+    this.setoresDisponiveis.setoresCensitarios.sort(function (a, b) {
+      a = a['_nome'].toLowerCase();
+      b = b['_nome'].toLowerCase();
+      if (a > b) { return 1 }
+      else if (a < b) { return -1 } 
+      else if (a === b) { return 0 }
+    })
   }
 
   cancelar(){

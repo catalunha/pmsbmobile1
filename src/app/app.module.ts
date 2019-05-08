@@ -48,7 +48,8 @@ import { BackupProvider } from '../providers/ferramentas/backup.service';
 import { EmailComposer } from '@ionic-native/email-composer';
 
 import { AuthenticationServiceLocal } from './../providers/dataLocal/authentication.service';
-
+import { TreeviewModule } from 'ngx-treeview';
+import { GruposProvider } from '../providers/dataServer/grupos.service';
 
 registerLocaleData(localePtBr)
 
@@ -72,8 +73,9 @@ registerLocaleData(localePtBr)
     BrowserModule,
     IonicModule.forRoot(MyApp),
     IonicStorageModule.forRoot(),
+    TreeviewModule.forRoot(),
     HttpClientModule,
-    HttpModule
+    HttpModule,
   ],
   bootstrap: [IonicApp],
   entryComponents: [
@@ -111,7 +113,8 @@ registerLocaleData(localePtBr)
     Network,
     EmailComposer,
     BackupProvider,
-    AuthenticationServiceLocal
+    AuthenticationServiceLocal,
+    GruposProvider
   ]
 })
 export class AppModule { }

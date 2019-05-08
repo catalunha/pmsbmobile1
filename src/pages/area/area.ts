@@ -9,6 +9,9 @@ import * as uuid from 'uuid'
 import { CssSelector } from '@angular/compiler';
 import { ModalController } from 'ionic-angular';
 import { SelecionarAreaPage } from '../selecionar-area/selecionar-area'
+import { IonTreeViewComponent } from 'ionic-tree-view';
+import { TreeviewItem } from 'ngx-treeview';
+
 /**
  * Generated class for the AreaPage page.
  *
@@ -23,10 +26,12 @@ import { SelecionarAreaPage } from '../selecionar-area/selecionar-area'
   providers: [SetorCensitarioLocalService, SetorCensitarioService]
 })
 export class AreaPage {
+  
   area_nova = ""
   setoresDisponiveis: SetorCensitarioList;
   setoresOffline: SetorCensitarioList;
   area
+  set_visible
 
   constructor(public navCtrl: NavController,
     public modalCtrl: ModalController,
@@ -39,27 +44,44 @@ export class AreaPage {
 
   async ionViewDidLoad() {
     this.ferramentas.presentLoading(" Aguarde ! Atualizando a pagina. ")
-    await this.atualizarListaSetores()
-    await this.getSetoresLocal();
+    this.atualizarListaSetores()
   }
 
-  ionViewDidEnter() {
-    //this.atualizarListaSetores()
-    this.getSetoresLocal();
+  async atualizarListaSetores() {
+    this.area_nova = ""
+    await this.setorCensitario.getSetoresCensitariosServidor()
+    await setTimeout(async () => {
+      this.iniciar();
+    }, 3000);
+  }
+
+  async iniciar() {
+    await this.setorCensitario.getSetoresCensitariosServidor()
+    this.set_visible = false
+    await this.getSetoresLocal().then(async()=>{
+      await this.setoresDisponiveis.setoresCensitarios.forEach((setor)=>{setor['_nome']=this.getSetorNome(setor)})
+      await this.ordenarSetores()
+      this.set_visible = await true
+    })
   }
 
   getSetoresLocal() {
-    this.setoresDisponiveis = null
-    const sucess = setoresDisponiveis => {
-      this.setoresDisponiveis = setoresDisponiveis;
-      console.log(this.setoresDisponiveis.setoresCensitarios);
-      this.setorCensitario.getSetoresOffline().forEach((setor) => { this.setoresDisponiveis.setoresCensitarios.push(setor) })
-    }
-    const error = error => console.log(error);
-    this.setorCensitario.getSetoresCensitariosDisponiveis()
-      .then(sucess)
-      .catch(error);
+    return new Promise((resolve, reject) => {
+      this.setoresDisponiveis = null
+      const sucess = async setoresDisponiveis => {
+        this.setoresDisponiveis = await setoresDisponiveis;
+        await this.setorCensitario.getSetoresOffline().forEach((setor) => {
+          this.setoresDisponiveis.setoresCensitarios.push(setor)
+        })
+        await resolve('true')
+      }
+      const error = error => console.log(error);
+      this.setorCensitario.getSetoresCensitariosDisponiveis()
+        .then(sucess)
+        .catch(error);
+    })
   }
+  
 
   getSetorSuperior(setor_superior) {
     return this.setoresDisponiveis.setoresCensitarios.find(setor => { return setor.id == setor_superior })//.nome
@@ -79,28 +101,23 @@ export class AreaPage {
     }
     if (this.area_nova.length == 0) {
       this.ferramentas.showAlert("O campo nova área está vazio !", "Insira um nome valido no campo nova área.")
-      return 
+      return
     }
-
     let area = this.setoresDisponiveis.setoresCensitarios.find(setor => { return setor.id == this.area })
-    if (area) { this.salvarNovaAreaServidor(area.id) } 
+    if (area) { this.salvarNovaAreaServidor(area.id) }
     else { this.salvarNovaAreaServidor(null) }
-
-    /** 
-    let profileModal = this.modalCtrl.create(SelecionarAreaPage, {nenhumVisible:true});
-    profileModal.present();
-    profileModal.onDidDismiss(data => {
-      if(!data.cancelado){
-        console.log(data.area)
-        if(data.area){
-          this.salvarNovaAreaServidor(data.area.id)
-        }else{
-          this.salvarNovaAreaServidor(null)
-        }
-      }
-    });*/
-
   }
+
+  async ordenarSetores() {
+    this.setoresDisponiveis.setoresCensitarios.sort(function (a, b) {
+      a = a['_nome'].toLowerCase();
+      b = b['_nome'].toLowerCase();
+      if (a > b) { return 1 }
+      else if (a < b) { return -1 } 
+      else if (a === b) { return 0 }
+    })
+  }
+
 
   gerarNovaInstanciaSetor(areasup) {
     let novo_setor = new SetorCensitario()
@@ -140,13 +157,5 @@ export class AreaPage {
       }
 
     }
-  }
-
-  async atualizarListaSetores() {
-    this.area_nova = ""
-    await this.setorCensitario.getSetoresCensitariosServidor()
-    await setTimeout(async () => {
-      this.getSetoresLocal();
-    }, 3000);
   }
 }

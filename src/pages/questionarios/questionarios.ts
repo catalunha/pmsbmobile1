@@ -19,18 +19,21 @@ import { ModalController } from 'ionic-angular';
 import { SelecionarAreaPage } from '../selecionar-area/selecionar-area'
 import { resolve } from 'url';
 
+import { GruposProvider } from '../../providers/dataServer/grupos.service'
+
 @IonicPage()
 @Component({
   selector: 'page-questionarios',
   templateUrl: 'questionarios.html',
-  providers: [QuestionarioDisponivelLocalService, QuestionarioService,
+  providers: [GruposProvider, QuestionarioDisponivelLocalService, QuestionarioService,
     ObservacaoLocalService, SetorCensitarioLocalService, SetorCensitarioService]
 })
 export class QuestionariosPage {
 
+  grupo_select
   questionariosDisponiveis: QuestionariosList;
   setoresDisponiveis: SetorCensitarioList;
-
+  grupos
   setorCensitarioOpts: { title: string, subTitle: string };
   marcador_carregando_dados
 
@@ -41,6 +44,7 @@ export class QuestionariosPage {
     private questionarioDisponivelLocalService: QuestionarioDisponivelLocalService,
     private setorCensitarioDisponivelService: SetorCensitarioLocalService,
     private ferramentas: FerramentasProvider,
+    public grupoProvider: GruposProvider
   ) {
     this.setorCensitarioOpts = {
       title: 'Setor Centitário',
@@ -48,30 +52,13 @@ export class QuestionariosPage {
     };
   }
 
-  async iniciar() {
-    
-    const atualizarQuestionarios = questionarioDisponivel => {
-      this.questionariosDisponiveis = questionarioDisponivel;
-    }
-  
-    await this.questionarioDisponivelLocalService.eventoUpdateQuestionarioDisponivel
-      .subscribe(atualizarQuestionarios)
-    
-    const atualizarSetores = setoresDisponiveis => {
-      this.setoresDisponiveis = setoresDisponiveis
-    }
-
-    await this.setorCensitarioDisponivelService.eventoUpdateSetorCensitario
-      .subscribe(atualizarSetores);
-
-  }
-
   async ionViewWillEnter() {
+    this.grupo_select = false
     this.marcador_carregando_dados = true
-    await this.questionarioDisponivelLocalService.getQuestionariosServidor().then((d)=>{
-      console.log(d)
+    await this.grupoProvider.getListaGrupoServidor().then((result) => { this.grupos = result })
+    await this.questionarioDisponivelLocalService.getQuestionariosServidor().then((d) => {
       this.getQuestionariosLocal();
-    }).catch(()=>{
+    }).catch(() => {
       this.getQuestionariosLocal();
       this.ferramentas.presentToast("Você está offline lendo questionarios armazenados.")
       this.marcador_carregando_dados = false
@@ -117,7 +104,7 @@ export class QuestionariosPage {
           questionario['setor_censitario'] = data.area
           this.$iniciarQuestionario(questionario)
         } else {
-          this.ferramentas.showAlert(`Erro ao criar um novo questionario !`, `O questionario ${questionario.nome} já existe na área ${ this.setorCensitarioDisponivelService.getSetorNome(data.area, this.setoresDisponiveis) } `)
+          this.ferramentas.showAlert(`Erro ao criar um novo questionario !`, `O questionario ${questionario.nome} já existe na área ${this.setorCensitarioDisponivelService.getSetorNome(data.area, this.setoresDisponiveis)} `)
         }
       }
     });
@@ -153,7 +140,22 @@ export class QuestionariosPage {
     }
   }
 
-  stpSelect() {
-    console.log('STP selected');
+  // -------- Funcoes de controle da exibicao dos questionarios por grupo --------
+
+  selecionarGrupo(grupo) {
+    console.log(grupo)
+    this.grupo_select = grupo
+  }
+
+  voltarAListaGrupos() {
+    this.grupo_select = false
+  }
+
+  verificaQuestionarioPertenceGrupo(quest) {
+    if (quest.grupo) {
+      if (quest.grupo.id == this.grupo_select.id) { return true
+      } else { return false }
+    }
+    return false
   }
 }

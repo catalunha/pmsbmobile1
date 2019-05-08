@@ -63,9 +63,7 @@ export class QuestionarioDisponivelLocalService extends QuestionarioLocalService
     getQuestionariosServidor() {
         return new Promise(async (resolve, reject) => {
             await console.log('getQuestionariosServidor')
-            let aux
-            const sucess =async questionariosList => {
-                questionariosList
+            const sucess = async questionariosList => {
                 await this.verificarInicializacao(questionariosList)
                 await resolve(questionariosList)
             }
@@ -77,8 +75,8 @@ export class QuestionarioDisponivelLocalService extends QuestionarioLocalService
         })
     }
 
-    private verificarInicializacao(listaQuestionario: Questionario[]) {
-        this.getQuestionariosDisponiveis().then(
+    private async verificarInicializacao(listaQuestionario: Questionario[]) {
+        await this.getQuestionariosDisponiveis().then(
             questionariosList => {
                 if (questionariosList) this.verificarAtualizacao(listaQuestionario, questionariosList);
                 else this.adicionarQuestionariosDisponiveis(listaQuestionario);
@@ -86,30 +84,27 @@ export class QuestionarioDisponivelLocalService extends QuestionarioLocalService
         ).catch(error => this.errorAlert(error, "[ERRO 02]"));
     }
 
-    private verificarAtualizacao(questionariosServidor: Questionario[], questionariosLocal: QuestionariosList) {
-        console.log({ questionariosServidor: questionariosServidor })
-
+    private async verificarAtualizacao(questionariosServidor: Questionario[], questionariosLocal: QuestionariosList) {
+        //console.log('verificarAtualizacao')
         this.avaliadorQuestionario.setObservacoes();
-        var atualizaDisponiveis = this.avaliadorQuestionario.verificarListaQuestionarioPipeline(questionariosServidor, questionariosLocal);
-        if (atualizaDisponiveis) {
+        await this.avaliadorQuestionario.verificarListaQuestionarioPipeline(questionariosServidor, questionariosLocal).then(async (resp) => {
+           //console.log('verificarAtualizacao-lista', questionariosLocal)
             this.avaliadorQuestionario.salvarObservacoes();
-            super.atualizarQuestionariosList(questionariosLocal)
-                .then(lista => {
-                    this.atualizarViewQuestionarioDisponivel(lista);
-                    this.avaliadorQuestionario.setObservacoes(false);
-                    this.getQuestionariosIniciados().then(
-                        questionariosIniciados => {
-                            if (questionariosIniciados) {
-                                var atualizaIniciados = this.avaliadorQuestionario.verificarQuestionarioEditado(questionariosServidor, questionariosIniciados);
-                                if (atualizaIniciados) super.atualizarQuestionariosList(questionariosIniciados);
-                            }
+            return super.atualizarQuestionariosList(questionariosLocal).then(lista => {
+                this.atualizarViewQuestionarioDisponivel(lista);
+                this.avaliadorQuestionario.setObservacoes(false);
+                this.getQuestionariosIniciados().then(
+                    questionariosIniciados => {
+                        if (questionariosIniciados) {
+                            var atualizaIniciados = this.avaliadorQuestionario.verificarQuestionarioEditado(questionariosServidor, questionariosIniciados);
+                            if (atualizaIniciados) super.atualizarQuestionariosList(questionariosIniciados);
                         }
-                    ).catch(error => this.errorAlert(error, "[ERRO 03]"));
-                })
-                .catch(error => this.errorAlert(error, "[ERRO 04]"));
-        } else {
-            this.ferramenta.presentToast("Questionários Atualizados!");
-        }
+                    }
+                ).catch(error => this.errorAlert(error, "[ERRO 03]"));
+            }).catch(error => this.errorAlert(error, "[ERRO 04]"));
+        });
+        //await this.ferramenta.presentToast("Questionários Atualizados!");
+        //console.log('verificarAtualizacao-END')
     }
 
     private adicionarQuestionariosDisponiveis(listaQuestionario: Questionario[]) {
@@ -119,6 +114,7 @@ export class QuestionarioDisponivelLocalService extends QuestionarioLocalService
     }
 
     private atualizarViewQuestionarioDisponivel(questionariosList: QuestionariosList) {
+        //console.log({ questionariosList: questionariosList })
         this.eventoUpdateQuestionarioDisponivel.emit(questionariosList);
         this.ferramenta.presentToast("Questionários Atualizados!");
     }

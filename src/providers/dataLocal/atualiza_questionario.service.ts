@@ -30,8 +30,10 @@ export class AtualizaQuestionario extends ObservacaoLocalService {
         this.listaObservacoes = new Array();
     }
 
-    verificarListaQuestionarioPipeline(questionariosServidor: Questionario[], questionariosLocal: QuestionariosList): boolean {
-        return this.verificarQuestionarioRemovido(questionariosServidor, questionariosLocal)
+    async verificarListaQuestionarioPipeline(questionariosServidor: Questionario[], questionariosLocal: QuestionariosList) {
+        let resp = await this.verificarQuestionarioRemovido(questionariosServidor, questionariosLocal)
+        console.log('Resposta-verifica-lista',resp)
+        return await resp
     }
 
     private verificarQuestionarioRemovido(questionariosServidor: Questionario[], questionariosLocal: QuestionariosList): boolean {
@@ -45,7 +47,9 @@ export class AtualizaQuestionario extends ObservacaoLocalService {
                 atualizado = true;
             }
         }
-        return (this.verificarQuestionarioAdicionado(questionariosServidor, questionariosLocal) || atualizado);
+        let result = (this.verificarQuestionarioAdicionado(questionariosServidor, questionariosLocal) || atualizado);
+        console.log('verificarQuestionarioRemovido',result)
+        return result
     }
 
     private verificarQuestionarioAdicionado(questionariosServidor: Questionario[], questionariosLocal: QuestionariosList): boolean {
@@ -58,7 +62,9 @@ export class AtualizaQuestionario extends ObservacaoLocalService {
                 this.novaObservacao("Atualização: Novo Questionário", "O questionário [" + questionario.nome + "] está disponível!");
             }
         }
-        return (this.verificarQuestionarioEditado(questionariosServidor, questionariosLocal) || atualizado);
+        let result = (this.verificarQuestionarioEditado(questionariosServidor, questionariosLocal) || atualizado);
+        console.log('verificarQuestionarioAdicionado',result)
+        return result
     }
 
     verificarQuestionarioEditado(questionariosServidor: Questionario[], questionariosLocal: QuestionariosList): boolean {
@@ -67,13 +73,16 @@ export class AtualizaQuestionario extends ObservacaoLocalService {
             var questionarioServidor = questionariosServidor.find(q => q.id === questionarioLocal.id);
             if (questionarioServidor) {
                 if (questionarioServidor.editado_em !== questionarioLocal.editado_em) {
+                    //atualizado.grupo = questionarioServidor.grupo
                     //Este questionário foi editado
                     atualizado = this.verificarPerguntasPipeline(questionarioServidor.perguntas, questionarioLocal);
                     //Atualizações Gerais
                     atualizado = this.verificarEdicoesGerais(questionarioServidor, questionarioLocal);
+                    //console.log('verificarQuestionarioEditado',questionarioServidor, questionarioLocal,'----------------------\n')
                 }
             }
         }
+        console.log('verificarQuestionarioEditado',atualizado)
         return atualizado;
     }
 
@@ -82,7 +91,7 @@ export class AtualizaQuestionario extends ObservacaoLocalService {
     }
 
     private verificarPerguntasAdicionadas(perguntasServidor: Pergunta[], perguntasLocal: Questionario): boolean {
-        console.log("verificarPerguntasAdicionadas")
+        //console.log("verificarPerguntasAdicionadas")
         var atualizado = false;
         for (let perguntaServidor of perguntasServidor) {
             var perguntaLocal = perguntasLocal.perguntas.find(p => p.id === perguntaServidor.id);
@@ -92,11 +101,13 @@ export class AtualizaQuestionario extends ObservacaoLocalService {
                 this.novaObservacao("Atualização: Nova Pergunta", "O questionário [" + perguntasLocal.nome + "] recebeu uma nova pergunta [" + perguntaServidor.texto + "].");
             }
         }
-        return (this.verificarPerguntasRemovidas(perguntasServidor, perguntasLocal) || atualizado);
+        let result = (this.verificarPerguntasRemovidas(perguntasServidor, perguntasLocal) || atualizado);
+        console.log('verificarPerguntasAdicionadas',result)
+        return result
     }
 
     private verificarPerguntasRemovidas(perguntasServidor: Pergunta[], perguntasLocal: Questionario): boolean {
-        console.log("verificarPerguntasRemovidas")
+        //console.log("verificarPerguntasRemovidas")
         var atualizado = false;
         for (var i = 0; i < perguntasLocal.perguntas.length; i++) {
             var perguntaServidor = perguntasServidor.find(p => p.id === perguntasLocal.perguntas[i].id);
@@ -104,15 +115,17 @@ export class AtualizaQuestionario extends ObservacaoLocalService {
                 atualizado = true;
                 if (removeArrayItem(perguntasLocal.perguntas, perguntasLocal.perguntas[i])) {
                     this.novaObservacao("Atenção: Exclusão de Pergunta", `Foi removido do questionário 
-                    [ ${perguntasLocal.nome} ] a pergunta [ ${perguntasLocal.perguntas[i].texto} ].`);
+                    [ ${perguntasLocal.nome} ]`);
                 };
             }
         }
-        return (this.verificarPerguntasEditadas(perguntasServidor, perguntasLocal) || atualizado);
+        let result = (this.verificarPerguntasEditadas(perguntasServidor, perguntasLocal) || atualizado);
+        console.log('verificarPerguntasRemovidas',result)
+        return result
     }
 
     private verificarPerguntasEditadas(perguntasServidor: Pergunta[], perguntasLocal: Questionario): boolean {
-        console.log("verificarPerguntasEditadas")
+        //console.log("verificarPerguntasEditadas")
         var atualizado = false;
         for (let perguntaLocal of perguntasLocal.perguntas) {
             try {
@@ -133,10 +146,12 @@ export class AtualizaQuestionario extends ObservacaoLocalService {
             }
 
         }
+        console.log('verificarPerguntasEditadas',atualizado)
         return atualizado;
     }
 
     private veridicarEdicoesGeraisPergunta(perguntaServidor: Pergunta, perguntaLocal: Pergunta): boolean {
+        //console.log('veridicarEdicoesGeraisPergunta')
         var atualizado = false;
 
         if (perguntaLocal.editado_em !== perguntaServidor.editado_em) {
@@ -176,7 +191,7 @@ export class AtualizaQuestionario extends ObservacaoLocalService {
 
         perguntaLocal.escolharequisito_set = perguntaServidor.escolharequisito_set;
         perguntaLocal.perguntarequisito_set = perguntaServidor.perguntarequisito_set;
-
+        console.log('veridicarEdicoesGeraisPergunta',atualizado)
         return atualizado;
     }
 
@@ -204,6 +219,12 @@ export class AtualizaQuestionario extends ObservacaoLocalService {
             questionarioLocal.editado_em = questionarioServidor.editado_em;
         }
 
+        if (questionarioLocal.grupo != questionarioServidor.grupo) {
+            atualizado = true;
+            //console.log({questionarioLocal:questionarioLocal.grupo, questionarioServidor:questionarioServidor.grupo})
+            questionarioLocal.grupo = questionarioServidor.grupo;
+        }
+        console.log('verificarEdicoesGerais',atualizado)
         return atualizado;
     }
 

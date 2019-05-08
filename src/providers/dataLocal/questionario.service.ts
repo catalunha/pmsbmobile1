@@ -17,6 +17,7 @@ export class QuestionarioLocalService extends CoreServiceLocal {
     }
 
     atualizarQuestionariosList(questionarioList: QuestionariosList): any {
+        console.log({questionarioList:questionarioList})
         return super.saveStorage(questionarioList.key, questionarioList)
     }
 
@@ -28,11 +29,6 @@ export class QuestionarioLocalService extends CoreServiceLocal {
         let aux = questionariosList
         aux.questionarios = await questionariosList.questionarios.filter((quest)=>{ return quest !== questionario })
         await this.atualizarQuestionariosList(aux);
-        
-        
-        //if (removeArrayItem(questionariosList.questionarios, questionario)) {
-        //    this.atualizarQuestionariosList(questionariosList);
-        //}
     }
 
     adicionarNovoQuestionario(questionario: Questionario, key: string): any {
@@ -49,6 +45,7 @@ export class QuestionarioLocalService extends CoreServiceLocal {
     }
 
     adicionarVariosQuestionarios(listaQuestionario: Questionario[], key: string): any {
+        console.log({listaQuestionario:listaQuestionario})
         let questionariosAux = new QuestionariosList(key);
         questionariosAux.questionarios = [...listaQuestionario];
         return super.saveStorage(questionariosAux.key, questionariosAux);

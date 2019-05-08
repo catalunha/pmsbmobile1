@@ -1,8 +1,18 @@
 <ion-header>
-  <ion-navbar color="primary">
+  <ion-navbar *ngIf='!grupo_select' color="primary">
     <ion-title *ngIf="questionariosDisponiveis">Questionários: {{ questionariosDisponiveis.questionarios.length }}
     </ion-title>
     <ion-title *ngIf="!questionariosDisponiveis">Questionários</ion-title>
+  </ion-navbar>
+
+
+  <ion-navbar *ngIf="grupo_select" color="primary">
+    <ion-title>{{ grupo_select.nome }}</ion-title>
+    <ion-buttons end>
+      <button (click)="voltarAListaGrupos()" ion-button icon-only color="royal">
+        <ion-icon name="arrow-back">Voltar</ion-icon>
+      </button>
+    </ion-buttons>
   </ion-navbar>
 </ion-header>
 
@@ -11,6 +21,48 @@
   <div *ngIf="marcador_carregando_dados" style="text-align: center">
     <h3 class="texto">Buscando Dados...</h3>
   </div>
+
+  <div *ngIf="!marcador_carregando_dados && questionariosDisponiveis && setoresDisponiveis">
+
+    <!--Listagem de grupos-->
+    <div *ngIf='!grupo_select'>
+      <div *ngFor="let grupo of grupos ">
+        <ion-card (click)="selecionarGrupo(grupo)">
+          <ion-item>
+            <h2 class="card-title ajuste-texto">{{ grupo.nome }}</h2>
+            <ion-avatar item-end>
+              <button ion-button clear large>
+                <ion-icon name="arrow-dropright-circle"></ion-icon>
+              </button>
+            </ion-avatar>
+          </ion-item>
+        </ion-card>
+      </div>
+    </div>
+
+    <div *ngIf='grupo_select'>
+      <div *ngFor="let questionario of questionariosDisponiveis.questionarios ">
+        <ion-card *ngIf='verificaQuestionarioPertenceGrupo(questionario)'>
+          <ion-card-content (click)="$escolherSetor(questionario)">
+            <h2 class="card-title">
+              {{ questionario.nome }}
+            </h2>
+            <hr>
+            <p>
+              Última edição: {{ questionario.editado_em | date:'h:mm:ss a, d/M/yy' }}
+            </p>
+            <p>
+              Criado em: {{ questionario.criado_em | date:'h:mm:ss a, d/M/yy' }}
+            </p>
+          </ion-card-content>
+        </ion-card>
+      </div>
+    </div>
+
+    <!--Listagem de questionarios separado por grupos-->
+  </div>
+
+  <!--
   <div *ngIf="!marcador_carregando_dados && questionariosDisponiveis && setoresDisponiveis">
     <div *ngFor="let questionario of questionariosDisponiveis.questionarios ">
       <ion-card>
@@ -29,5 +81,5 @@
       </ion-card>
     </div>
   </div>
-
+-->
 </ion-content>

@@ -3,6 +3,12 @@ import { Usuario } from './usuario.model';
 import { RespostaQuestionario } from './resposta_questionario.model';
 import { SetorCensitario } from './setor_censitario.model';
 
+export class Grupo {
+    descricao: string
+    nome: string
+    id: string
+}
+
 export class Questionario {
 
     id          : string;
@@ -13,6 +19,7 @@ export class Questionario {
     iniciado_em : string;
     publicado   : boolean;
     perguntas   : Pergunta[];
+    grupo       : any
 
     // Não pertence ao JSON original
     atualizado_em               : string;
